@@ -336,11 +336,512 @@ static bool ExtractSRSName(const char *pszXML, char *szSRSName,
 }
 
 /************************************************************************/
+/*              Private methods for Open()                              */
+/************************************************************************/
+
+/************************************************************************/
+/*             GetNumberOfFeatures()                                    */
+/************************************************************************/
+
+GIntBig OGRGMLDataSource::GetNumberOfFeatures(char*& szPtr)
+{
+    GIntBig nNumberOfFeatures = 0;
+
+    const char* pszNumberOfFeatures = strstr(szPtr, "numberOfFeatures=");
+    if (pszNumberOfFeatures) {
+        pszNumberOfFeatures += 17;
+        char ch = pszNumberOfFeatures[0];
+        if ((ch == '\'' || ch == '"')
+            && strchr(pszNumberOfFeatures + 1, ch) != NULL) {
+            nNumberOfFeatures = CPLAtoGIntBig(pszNumberOfFeatures + 1);
+        }
+    } else if ((pszNumberOfFeatures = strstr(szPtr, "numberReturned=")) != NULL) {
+        // WFS 2.0.0
+        pszNumberOfFeatures += 15;
+        char ch = pszNumberOfFeatures[0];
+        if ((ch == '\'' || ch == '"')
+            && strchr(pszNumberOfFeatures + 1, ch) != NULL) {
+            // 'unknown' might be a valid value in a corrected version of
+            // WFS 2.0 but it will also evaluate to 0, that is considered as
+            // unknown, so nothing particular to do.
+            nNumberOfFeatures = CPLAtoGIntBig(pszNumberOfFeatures + 1);
+        }
+    }
+
+    return nNumberOfFeatures;
+}
+
+/************************************************************************/
+/*                FetchApplicationSchemaWFS()                           */
+/************************************************************************/
+
+bool OGRGMLDataSource::FetchApplicationSchemaWFS(const char* pszSchemaLocation, bool bHasFoundXSD,
+        char**& papszTypeNames, GDALOpenInfo* poOpenInfo)
+{
+    char* pszSchemaLocationTmp1 = CPLStrdup(pszSchemaLocation + 1);
+    int nTruncLen = static_cast<int>(strchr(pszSchemaLocation + 1,
+            pszSchemaLocation[0]) - (pszSchemaLocation + 1));
+    pszSchemaLocationTmp1[nTruncLen] = '\0';
+    char* pszSchemaLocationTmp2 = CPLUnescapeString(pszSchemaLocationTmp1, NULL,
+            CPLES_XML);
+    CPLString osEscaped = ReplaceSpaceByPct20IfNeeded(pszSchemaLocationTmp2);
+    CPLFree(pszSchemaLocationTmp2);
+    pszSchemaLocationTmp2 = CPLStrdup(osEscaped);
+    if (pszSchemaLocationTmp2) {
+        // pszSchemaLocationTmp2 is of the form:
+        // http://namespace1 http://namespace1_schema_location http://namespace2 http://namespace1_schema_location2
+        // So we try to find http://namespace1_schema_location that
+        // contains hints that it is the WFS application */ schema,
+        // i.e. if it contains typename= and
+        // request=DescribeFeatureType.
+        char** papszTokens = CSLTokenizeString2(pszSchemaLocationTmp2, " \r\n",
+            0);
+        int nTokens = CSLCount(papszTokens);
+        if ((nTokens % 2) == 0) {
+            for (int i = 0; i < nTokens; i += 2) {
+                const char* pszEscapedURL = papszTokens[i + 1];
+                char* pszLocation = CPLUnescapeString(pszEscapedURL, NULL,
+                     CPLES_URL);
+                   CPLString osLocation = pszLocation;
+                CPLFree(pszLocation);
+                if (osLocation.ifind("typename=") != std::string::npos
+                     && osLocation.ifind("request=DescribeFeatureType")
+                     != std::string::npos) {
+                    CPLString osTypeName = CPLURLGetValue(osLocation,
+                        "typename");
+                    papszTypeNames = CSLTokenizeString2(osTypeName, ",", 0);
+                    if (!bHasFoundXSD && CPLHTTPEnabled()
+                        && CPLFetchBool(poOpenInfo->papszOpenOptions,
+                                    "DOWNLOAD_SCHEMA",
+                                    CPLTestBool(
+                                            CPLGetConfigOption(
+                                                    "GML_DOWNLOAD_WFS_SCHEMA",
+                                                    "YES")))) {
+                        CPLHTTPResult* psResult = CPLHTTPFetch(pszEscapedURL,
+                                NULL);
+                        if (psResult) {
+                            if (psResult->nStatus
+                                == 0&& psResult->pabyData != NULL) {
+                                bHasFoundXSD = true;
+                                osXSDFilename = CPLSPrintf(
+                                        "/vsimem/tmp_gml_xsd_%p.xsd", this);
+                                VSILFILE* fpMem = VSIFileFromMemBuffer(
+                                        osXSDFilename, psResult->pabyData,
+                                        psResult->nDataLen, TRUE);
+                                VSIFCloseL(fpMem);
+                                psResult->pabyData = NULL;
+                            }
+                            CPLHTTPDestroyResult(psResult);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        CSLDestroy(papszTokens);
+    }
+    CPLFree(pszSchemaLocationTmp2);
+    CPLFree(pszSchemaLocationTmp1);
+    return bHasFoundXSD;
+}
+
+/************************************************************************/
+/*                                  LoadXSD()                           */
+/************************************************************************/
+
+bool OGRGMLDataSource::LoadXSD(bool bHaveSchema, bool bIsWFSJointLayer, const bool bHas3D,
+        bool& bHasFeatureProperties, char** papszTypeNames)
+{
+    std::vector<GMLFeatureClass*> aosClasses;
+    bool bFullyUnderstood = false;
+    bHaveSchema = GMLParseXSD(osXSDFilename, aosClasses, bFullyUnderstood);
+    if (bHaveSchema && !bFullyUnderstood && bIsWFSJointLayer) {
+        CPLDebug("GML",
+                "Schema found, but only partially understood. Cannot be used in a WFS join context");
+        std::vector<GMLFeatureClass*>::const_iterator oIter =
+                aosClasses.begin();
+        std::vector<GMLFeatureClass*>::const_iterator oEndIter =
+                aosClasses.end();
+        while (oIter != oEndIter) {
+            GMLFeatureClass* poClass = *oIter;
+            delete poClass;
+            ++oIter;
+        }
+        aosClasses.resize(0);
+        bHaveSchema = false;
+    }
+    if (bHaveSchema) {
+        CPLDebug("GML", "Using %s", osXSDFilename.c_str());
+        std::vector<GMLFeatureClass*>::const_iterator oIter =
+                aosClasses.begin();
+        std::vector<GMLFeatureClass*>::const_iterator oEndIter =
+                aosClasses.end();
+        while (oIter != oEndIter) {
+            GMLFeatureClass* poClass = *oIter;
+            if (poClass->HasFeatureProperties()) {
+                bHasFeatureProperties = true;
+                break;
+            }
+            ++oIter;
+        }
+        oIter = aosClasses.begin();
+        while (oIter != oEndIter) {
+            GMLFeatureClass* poClass = *oIter;
+            ++oIter;
+            // We have no way of knowing if the geometry type is 25D
+            // when examining the xsd only, so if there was a hint
+            // it is, we force to 25D.
+            if (bHas3D && poClass->GetGeometryPropertyCount() == 1) {
+                poClass->GetGeometryProperty(0)->SetType(
+                        wkbSetZ(
+                                (OGRwkbGeometryType )(poClass->GetGeometryProperty(
+                                        0)->GetType())));
+            }
+            bool bAddClass = true;
+            // If typenames are declared, only register the matching
+            // classes, in case the XSD contains more layers, but not if
+            // feature classes contain feature properties, in which case
+            // we will have embedded features that will be reported as
+            // top-level features.
+            if (papszTypeNames != NULL && !bHasFeatureProperties) {
+                bAddClass = false;
+                char** papszIter = papszTypeNames;
+                while (*papszIter && !bAddClass) {
+                    const char* pszTypeName = *papszIter;
+                    if (strcmp(pszTypeName, poClass->GetName()) == 0)
+                        bAddClass = true;
+
+                    papszIter++;
+                }
+                // Retry by removing prefixes.
+                if (!bAddClass) {
+                    papszIter = papszTypeNames;
+                    while (*papszIter && !bAddClass) {
+                        const char* pszTypeName = *papszIter;
+                        const char* pszColon = strchr(pszTypeName, ':');
+                        if (pszColon) {
+                            pszTypeName = pszColon + 1;
+                            if (strcmp(pszTypeName, poClass->GetName()) == 0) {
+                                poClass->SetName(pszTypeName);
+                                bAddClass = true;
+                            }
+                        }
+                        papszIter++;
+                    }
+                }
+            }
+            if (bAddClass)
+                poReader->AddClass(poClass);
+            else
+                delete poClass;
+        }
+        poReader->SetClassListLocked(true);
+    }
+    return bHaveSchema;
+}
+
+/************************************************************************/
+/*                               LookForXSD()                           */
+/************************************************************************/
+
+bool OGRGMLDataSource::LookForXSD(bool bCheckAuxFile, bool bHasFoundXSD, char szHeader[4096],
+        const char* pszSchemaLocation, const bool bHas3D,
+        const char* pszReadMode, const char*& pszFilename,
+        GDALOpenInfo*& poOpenInfo, bool& bHaveSchema, bool& bIsWFSJointLayer)
+{
+    char** papszTypeNames = NULL;
+    VSIStatBufL sXSDStatBuf;
+    if (osXSDFilename.empty()) {
+        osXSDFilename = CPLResetExtension(pszFilename, "xsd");
+        if (bCheckAuxFile
+                && VSIStatExL(osXSDFilename, &sXSDStatBuf, VSI_STAT_EXISTS_FLAG)
+                        == 0) {
+            bHasFoundXSD = true;
+        }
+    } else {
+        if (STARTS_WITH(osXSDFilename, "http://")
+                || STARTS_WITH(osXSDFilename, "https://")
+                || VSIStatExL(osXSDFilename, &sXSDStatBuf, VSI_STAT_EXISTS_FLAG)
+                        == 0) {
+            bHasFoundXSD = true;
+        }
+    }
+    // If not found, try if there is a schema in the gml_registry.xml
+    // that might match a declared namespace and featuretype.
+    if (!bHasFoundXSD) {
+        GMLRegistry oRegistry(
+                CSLFetchNameValueDef(poOpenInfo->papszOpenOptions, "REGISTRY",
+                        CPLGetConfigOption("GML_REGISTRY", "")));
+        if (oRegistry.Parse()) {
+            CPLString osHeader(szHeader);
+            for (size_t iNS = 0; iNS < oRegistry.aoNamespaces.size(); iNS++) {
+                GMLRegistryNamespace& oNamespace = oRegistry.aoNamespaces[iNS];
+                // When namespace is omitted or fit with case sensitive match for
+                // name space prefix, then go next to find feature match.
+                //
+                // Case sensitive comparison since below test that also
+                // uses the namespace prefix is case sensitive.
+                if (!oNamespace.osPrefix.empty()
+                        && osHeader.find(
+                                CPLSPrintf("xmlns:%s",
+                                        oNamespace.osPrefix.c_str()))
+                                == std::string::npos) {
+                    // namespace does not match with one of registry definition.
+                    // go to next entry.
+                    continue;
+                }
+                const char* pszURIToFind = CPLSPrintf("\"%s\"",
+                        oNamespace.osURI.c_str());
+                if (strstr(szHeader, pszURIToFind) != NULL) {
+                    if (oNamespace.bUseGlobalSRSName)
+                        bUseGlobalSRSName = true;
+
+                    for (size_t iTypename = 0;
+                            iTypename < oNamespace.aoFeatureTypes.size();
+                            iTypename++) {
+                        const char* pszElementToFind = NULL;
+                        GMLRegistryFeatureType& oFeatureType =
+                                oNamespace.aoFeatureTypes[iTypename];
+                        if (!oNamespace.osPrefix.empty()) {
+                            if (!oFeatureType.osElementValue.empty())
+                                pszElementToFind = CPLSPrintf("%s:%s>%s",
+                                        oNamespace.osPrefix.c_str(),
+                                        oFeatureType.osElementName.c_str(),
+                                        oFeatureType.osElementValue.c_str());
+                            else
+                                pszElementToFind = CPLSPrintf("%s:%s",
+                                        oNamespace.osPrefix.c_str(),
+                                        oFeatureType.osElementName.c_str());
+                        } else {
+                            if (!oFeatureType.osElementValue.empty())
+                                pszElementToFind = CPLSPrintf("%s>%s",
+                                        oFeatureType.osElementName.c_str(),
+                                        oFeatureType.osElementValue.c_str());
+                            else
+                                pszElementToFind = CPLSPrintf("<%s",
+                                        oFeatureType.osElementName.c_str());
+                        }
+                        // Case sensitive test since in a CadastralParcel
+                        // feature there is a property basicPropertyUnit
+                        // xlink, not to be confused with a top-level
+                        // BasicPropertyUnit feature.
+                        if (osHeader.find(pszElementToFind)
+                                != std::string::npos) {
+                            if (!oFeatureType.osSchemaLocation.empty()) {
+                                osXSDFilename = oFeatureType.osSchemaLocation;
+                                if (STARTS_WITH(osXSDFilename, "http://")
+                                        || STARTS_WITH(osXSDFilename,
+                                                "https://")
+                                        || VSIStatExL(osXSDFilename,
+                                                &sXSDStatBuf,
+                                                VSI_STAT_EXISTS_FLAG) == 0) {
+                                    bHasFoundXSD = true;
+                                    bHaveSchema = true;
+                                    CPLDebug("GML",
+                                            "Found %s for %s:%s in registry",
+                                            osXSDFilename.c_str(),
+                                            oNamespace.osPrefix.c_str(),
+                                            oFeatureType.osElementName.c_str());
+                                } else {
+                                    CPLDebug("GML", "Cannot open %s",
+                                            osXSDFilename.c_str());
+                                }
+                            } else {
+                                bHaveSchema = poReader->LoadClasses(
+                                        oFeatureType.osGFSSchemaLocation);
+                                if (bHaveSchema) {
+                                    CPLDebug("GML",
+                                            "Found %s for %s:%s in registry",
+                                            oFeatureType.osGFSSchemaLocation.c_str(),
+                                            oNamespace.osPrefix.c_str(),
+                                            oFeatureType.osElementName.c_str());
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    /* For WFS, try to fetch the application schema */
+    if (bIsWFS && !bHaveSchema && pszSchemaLocation != NULL
+            && (pszSchemaLocation[0] == '\'' || pszSchemaLocation[0] == '"')
+            && strchr(pszSchemaLocation + 1, pszSchemaLocation[0]) != NULL) {
+        bHasFoundXSD = FetchApplicationSchemaWFS(pszSchemaLocation,
+                bHasFoundXSD, papszTypeNames, poOpenInfo);
+    }
+    bool bHasFeatureProperties = false;
+    if (bHasFoundXSD) {
+        bHaveSchema = LoadXSD(bHaveSchema, bIsWFSJointLayer, bHas3D,
+                bHasFeatureProperties, papszTypeNames);
+    }
+    if (bHaveSchema && bIsWFS) {
+        if (bIsWFSJointLayer) {
+            BuildJointClassFromXSD();
+        }
+        // For WFS, we can assume sequential layers.
+        if (poReader->GetClassCount() > 1 && pszReadMode == NULL
+                && !bHasFeatureProperties) {
+            CPLDebug("GML", "WFS output. Using SEQUENTIAL_LAYERS read mode");
+            eReadMode = SEQUENTIAL_LAYERS;
+        } else
+        // Sometimes the returned schema contains only <xs:include> that we
+        // don't resolve so ignore it.
+        if (poReader->GetClassCount() == 0)
+            bHaveSchema = false;
+    }
+    CSLDestroy(papszTypeNames);
+    return bHasFoundXSD;
+}
+
+/************************************************************************/
+/*                           SaveSchemaFile()                           */
+/************************************************************************/
+
+void OGRGMLDataSource::SaveSchemaFile(bool bHaveSchema, const char* pszFilename,
+        CPLString osGFSFilename)
+{
+    // Save the schema file if possible.  Don't make a fuss if we
+    // can't.  It could be read-only directory or something.
+    if (!bHaveSchema
+            && !poReader->HasStoppedParsing() && !STARTS_WITH_CI(pszFilename, "/vsitar/") && !STARTS_WITH_CI(pszFilename, "/vsizip/") && !STARTS_WITH_CI(pszFilename, "/vsigzip/vsi") && !STARTS_WITH_CI(pszFilename, "/vsigzip//vsi") && !STARTS_WITH_CI(pszFilename, "/vsicurl/") && !STARTS_WITH_CI(pszFilename, "/vsicurl_streaming/")) {
+        VSILFILE* l_fp = NULL;
+        VSIStatBufL sGFSStatBuf;
+        if (VSIStatExL(osGFSFilename, &sGFSStatBuf, VSI_STAT_EXISTS_FLAG)
+                != 0&& (l_fp = VSIFOpenL(osGFSFilename, "wt")) != NULL) {
+            VSIFCloseL(l_fp);
+            poReader->SaveClasses(osGFSFilename);
+        } else {
+            CPLDebug("GML",
+                    "Not saving %s files already exists or can't be created.",
+                    osGFSFilename.c_str());
+        }
+    }
+}
+
+/************************************************************************/
+/*                         ForceEstablishSchema()                       */
+/************************************************************************/
+
+void OGRGMLDataSource::ForceEstablishSchema(bool bHaveSchema, bool bAnalyzeSRSPerFeature,
+        bool bIsWFSJointLayer, bool bHasFoundXSD, CPLString osGFSFilename) {
+    if (!bHaveSchema) {
+        if (bIsWFSJointLayer && poReader->GetClassCount() == 1) {
+            BuildJointClassFromScannedSchema();
+        }
+        if (bHasFoundXSD) {
+            CPLDebug("GML", "Generating %s file, ignoring %s",
+                    osGFSFilename.c_str(), osXSDFilename.c_str());
+        }
+    }
+}
+
+/************************************************************************/
+/*                         LookForGfsFile()                             */
+/************************************************************************/
+
+bool OGRGMLDataSource::LookForGfsFile(bool bCheckAuxFile, bool bHaveSchema,
+        const char* pszXSDFilenameTmp, CPLString& osGFSFilename,
+        const char*& pszFilename)
+{
+    VSIStatBufL sGFSStatBuf;
+    if (bCheckAuxFile && VSIStatL(osGFSFilename, &sGFSStatBuf) == 0) {
+        VSIStatBufL sGMLStatBuf;
+        if (VSIStatL(pszFilename, &sGMLStatBuf) == 0
+                && sGMLStatBuf.st_mtime > sGFSStatBuf.st_mtime) {
+            CPLDebug("GML",
+                    "Found %s but ignoring because it appears\nbe older than the associated GML file.",
+                    osGFSFilename.c_str());
+        } else {
+            bHaveSchema = poReader->LoadClasses(osGFSFilename);
+            if (bHaveSchema) {
+                pszXSDFilenameTmp = CPLResetExtension(pszFilename, "xsd");
+                if (VSIStatExL(pszXSDFilenameTmp, &sGMLStatBuf,
+                        VSI_STAT_EXISTS_FLAG) == 0) {
+                    CPLDebug("GML", "Using %s file, ignoring %s",
+                            osGFSFilename.c_str(), pszXSDFilenameTmp);
+                }
+            }
+        }
+    }
+    return bHaveSchema;
+}
+
+/************************************************************************/
+/*                           ResolvXlink()                              */
+/************************************************************************/
+
+bool OGRGMLDataSource::ResolvXlink(const char* pszOption, bool bCheckAuxFile, bool bResolve,
+        char*& pszXlinkResolvedFilename, const char*& pszFilename)
+{
+    if (pszOption != NULL && STARTS_WITH_CI(pszOption, "SAME")) {
+        // "SAME" will overwrite the existing gml file.
+        pszXlinkResolvedFilename = CPLStrdup(pszFilename);
+    } else if (pszOption != NULL
+            && CPLStrnlen(pszOption, 5)
+                    >= 5&& STARTS_WITH_CI(pszOption - 4 + strlen(pszOption), ".gml")) {
+        // Any string ending with ".gml" will try and write to it.
+        pszXlinkResolvedFilename = CPLStrdup(pszOption);
+    } else {
+        // When no option is given or is not recognised,
+        // use the same file name with the extension changed to .resolved.gml
+        pszXlinkResolvedFilename = CPLStrdup(
+                CPLResetExtension(pszFilename, "resolved.gml"));
+        // Check if the file already exists.
+        VSIStatBufL sResStatBuf, sGMLStatBuf;
+        if (bCheckAuxFile
+                && VSIStatL(pszXlinkResolvedFilename, &sResStatBuf) == 0) {
+            if (VSIStatL(pszFilename, &sGMLStatBuf) == 0
+                    && sGMLStatBuf.st_mtime > sResStatBuf.st_mtime) {
+                CPLDebug("GML",
+                        "Found %s but ignoring because it appears\nbe older than the associated GML file.",
+                        pszXlinkResolvedFilename);
+            } else {
+                poReader->SetSourceFile(pszXlinkResolvedFilename);
+                bResolve = false;
+            }
+        }
+    }
+
+    return bResolve;
+}
+
+/************************************************************************/
+/*                 TranslateFeatureToLayers()                           */
+/************************************************************************/
+
+void OGRGMLDataSource::TranslateFeatureToLayers(GIntBig nNumberOfFeatures)
+{
+    // Translate the GMLFeatureClasses into layers.
+    papoLayers = static_cast<OGRGMLLayer**>(CPLCalloc(sizeof(OGRGMLLayer*),
+            poReader->GetClassCount()));
+    nLayers = 0;
+    if (poReader->GetClassCount() == 1 && nNumberOfFeatures != 0) {
+        GMLFeatureClass* poClass = poReader->GetClass(0);
+        GIntBig nFeatureCount = poClass->GetFeatureCount();
+        if (nFeatureCount < 0) {
+            poClass->SetFeatureCount(nNumberOfFeatures);
+        } else if (nFeatureCount != nNumberOfFeatures) {
+            CPLDebug("GML",
+                    "Feature count in header, and actual feature count don't match");
+        }
+    }
+    if (bIsWFS && poReader->GetClassCount() == 1)
+        bUseGlobalSRSName = true;
+
+    while (nLayers < poReader->GetClassCount()) {
+        papoLayers[nLayers] = TranslateGMLSchema(poReader->GetClass(nLayers));
+        nLayers++;
+    }
+}
+
+/************************************************************************/
 /*                                Open()                                */
 /************************************************************************/
 
 bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
-
 {
     // Extract XSD filename from connection string if present.
     osFilename = poOpenInfo->pszFilename;
@@ -480,32 +981,7 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
     {
         bExposeGMLId = true;
         bIsWFS = true;
-        const char *pszNumberOfFeatures = strstr(szPtr, "numberOfFeatures=");
-        if (pszNumberOfFeatures)
-        {
-            pszNumberOfFeatures += 17;
-            char ch = pszNumberOfFeatures[0];
-            if ((ch == '\'' || ch == '"') &&
-                strchr(pszNumberOfFeatures + 1, ch) != NULL)
-            {
-                nNumberOfFeatures = CPLAtoGIntBig(pszNumberOfFeatures + 1);
-            }
-        }
-        else if ((pszNumberOfFeatures = strstr(szPtr, "numberReturned=")) !=
-                 NULL)
-        {
-            // WFS 2.0.0
-            pszNumberOfFeatures += 15;
-            char ch = pszNumberOfFeatures[0];
-            if ((ch == '\'' || ch == '"') &&
-                strchr(pszNumberOfFeatures + 1, ch) != NULL)
-            {
-                // 'unknown' might be a valid value in a corrected version of
-                // WFS 2.0 but it will also evaluate to 0, that is considered as
-                // unknown, so nothing particular to do.
-                nNumberOfFeatures = CPLAtoGIntBig(pszNumberOfFeatures + 1);
-            }
-        }
+        nNumberOfFeatures = GetNumberOfFeatures(szPtr);
     }
     else if (STARTS_WITH(pszFilename, "/vsimem/tempwfs_"))
     {
@@ -679,44 +1155,8 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
     const char *pszOption = CPLGetConfigOption("GML_SAVE_RESOLVED_TO", NULL);
     bool bResolve = true;
     bool bHugeFile = false;
-    if( pszOption != NULL && STARTS_WITH_CI(pszOption, "SAME") )
-    {
-        // "SAME" will overwrite the existing gml file.
-        pszXlinkResolvedFilename = CPLStrdup(pszFilename);
-    }
-    else if( pszOption != NULL &&
-             CPLStrnlen(pszOption, 5) >= 5 &&
-             STARTS_WITH_CI(pszOption - 4 + strlen(pszOption), ".gml") )
-    {
-        // Any string ending with ".gml" will try and write to it.
-        pszXlinkResolvedFilename = CPLStrdup(pszOption);
-    }
-    else
-    {
-        // When no option is given or is not recognised,
-        // use the same file name with the extension changed to .resolved.gml
-        pszXlinkResolvedFilename =
-            CPLStrdup(CPLResetExtension(pszFilename, "resolved.gml"));
-
-        // Check if the file already exists.
-        VSIStatBufL sResStatBuf, sGMLStatBuf;
-        if( bCheckAuxFile && VSIStatL(pszXlinkResolvedFilename, &sResStatBuf) == 0 )
-        {
-            if( VSIStatL(pszFilename, &sGMLStatBuf) == 0 &&
-                sGMLStatBuf.st_mtime > sResStatBuf.st_mtime )
-            {
-                CPLDebug("GML",
-                         "Found %s but ignoring because it appears\n"
-                         "be older than the associated GML file.",
-                         pszXlinkResolvedFilename);
-            }
-            else
-            {
-                poReader->SetSourceFile(pszXlinkResolvedFilename);
-                bResolve = false;
-            }
-        }
-    }
+    bResolve = ResolvXlink(pszOption, bCheckAuxFile, bResolve,
+            pszXlinkResolvedFilename, pszFilename);
 
     const char *pszSkipOption =
         CPLGetConfigOption("GML_SKIP_RESOLVE_ELEMS", "ALL");
@@ -729,8 +1169,11 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
     else if( !EQUAL(pszSkipOption, "NONE") )  // Use this to resolve everything.
         papszSkip = CSLTokenizeString2(
             pszSkipOption, ",", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES);
+
     bool bHaveSchema = false;
     bool bSchemaDone = false;
+    bool bHasFoundXSD = false;
+
 
     // Is some GML Feature Schema (.gfs) TEMPLATE required?
     const char *pszGFSTemplateName =
@@ -790,7 +1233,7 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
         if( !poReader->PrescanForTemplate() )
         {
             // Assume an error has been reported.
-            return false;
+            /// return false;
         }
     }
 
@@ -801,33 +1244,8 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
     // Can we find a GML Feature Schema (.gfs) for the input file?
     if( !bHaveSchema && osXSDFilename.empty())
     {
-        VSIStatBufL sGFSStatBuf;
-        if( bCheckAuxFile && VSIStatL(osGFSFilename, &sGFSStatBuf) == 0 )
-        {
-            VSIStatBufL sGMLStatBuf;
-            if( VSIStatL(pszFilename, &sGMLStatBuf) == 0 &&
-                sGMLStatBuf.st_mtime > sGFSStatBuf.st_mtime )
-            {
-                CPLDebug("GML",
-                         "Found %s but ignoring because it appears\n"
-                         "be older than the associated GML file.",
-                         osGFSFilename.c_str());
-            }
-            else
-            {
-                bHaveSchema = poReader->LoadClasses(osGFSFilename);
-                if (bHaveSchema)
-                {
-                    pszXSDFilenameTmp = CPLResetExtension(pszFilename, "xsd");
-                    if( VSIStatExL(pszXSDFilenameTmp, &sGMLStatBuf,
-                                   VSI_STAT_EXISTS_FLAG) == 0 )
-                    {
-                        CPLDebug("GML", "Using %s file, ignoring %s",
-                                 osGFSFilename.c_str(), pszXSDFilenameTmp);
-                    }
-                }
-            }
-        }
+        bHaveSchema = LookForGfsFile(bCheckAuxFile, bHaveSchema,
+                pszXSDFilenameTmp, osGFSFilename, pszFilename);
     }
 
     // Can we find an xsd which might conform to tbe GML3 Level 0
@@ -835,369 +1253,13 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
     // schemaLocation in the GML feature collection but for now we
     // just hopes it is in the same director with the same name.
 
-    bool bHasFoundXSD = false;
+
 
     if( !bHaveSchema )
     {
-        char **papszTypeNames = NULL;
-
-        VSIStatBufL sXSDStatBuf;
-        if (osXSDFilename.empty())
-        {
-            osXSDFilename = CPLResetExtension(pszFilename, "xsd");
-            if( bCheckAuxFile && VSIStatExL(osXSDFilename, &sXSDStatBuf, VSI_STAT_EXISTS_FLAG) == 0 )
-            {
-                bHasFoundXSD = true;
-            }
-        }
-        else
-        {
-            if ( STARTS_WITH(osXSDFilename, "http://") ||
-                 STARTS_WITH(osXSDFilename, "https://") ||
-                 VSIStatExL(osXSDFilename, &sXSDStatBuf, VSI_STAT_EXISTS_FLAG) == 0 )
-            {
-                bHasFoundXSD = true;
-            }
-        }
-
-        // If not found, try if there is a schema in the gml_registry.xml
-        // that might match a declared namespace and featuretype.
-        if( !bHasFoundXSD )
-        {
-            GMLRegistry oRegistry(
-                CSLFetchNameValueDef(poOpenInfo->papszOpenOptions, "REGISTRY",
-                                     CPLGetConfigOption("GML_REGISTRY", "")));
-            if( oRegistry.Parse() )
-            {
-                CPLString osHeader(szHeader);
-                for( size_t iNS = 0; iNS < oRegistry.aoNamespaces.size(); iNS++ )
-                {
-                    GMLRegistryNamespace &oNamespace =
-                        oRegistry.aoNamespaces[iNS];
-                    // When namespace is omitted or fit with case sensitive match for
-                    // name space prefix, then go next to find feature match.
-                    //
-                    // Case sensitive comparison since below test that also
-                    // uses the namespace prefix is case sensitive.
-                    if( !oNamespace.osPrefix.empty() &&
-                        osHeader.find(CPLSPrintf("xmlns:%s",
-                            oNamespace.osPrefix.c_str()))
-                              == std::string::npos )
-                    {
-                        // namespace does not match with one of registry definition.
-                        // go to next entry.
-                        continue;
-                    }
-
-                    const char *pszURIToFind =
-                        CPLSPrintf("\"%s\"", oNamespace.osURI.c_str());
-                    if( strstr(szHeader, pszURIToFind) != NULL )
-                    {
-                        if( oNamespace.bUseGlobalSRSName )
-                            bUseGlobalSRSName = true;
-
-                        for( size_t iTypename = 0;
-                             iTypename < oNamespace.aoFeatureTypes.size();
-                             iTypename++ )
-                        {
-                            const char *pszElementToFind = NULL;
-
-                            GMLRegistryFeatureType &oFeatureType =
-                                oNamespace.aoFeatureTypes[iTypename];
-
-                            if( !oNamespace.osPrefix.empty() )
-                            {
-                                if ( !oFeatureType.osElementValue.empty() )
-                                    pszElementToFind = CPLSPrintf(
-                                        "%s:%s>%s", oNamespace.osPrefix.c_str(),
-                                        oFeatureType.osElementName.c_str(),
-                                        oFeatureType.osElementValue.c_str());
-                                else
-                                    pszElementToFind = CPLSPrintf(
-                                        "%s:%s", oNamespace.osPrefix.c_str(),
-                                        oFeatureType.osElementName.c_str());
-                            }
-                            else
-                            {
-                                if ( !oFeatureType.osElementValue.empty() )
-                                    pszElementToFind = CPLSPrintf("%s>%s",
-                                                                  oFeatureType.osElementName.c_str(),
-                                                                  oFeatureType.osElementValue.c_str());
-                                else
-                                    pszElementToFind = CPLSPrintf("<%s",
-                                                                  oFeatureType.osElementName.c_str());
-                            }
-
-
-                            // Case sensitive test since in a CadastralParcel
-                            // feature there is a property basicPropertyUnit
-                            // xlink, not to be confused with a top-level
-                            // BasicPropertyUnit feature.
-                            if( osHeader.find(pszElementToFind) !=
-                                std::string::npos )
-                            {
-                                if( !oFeatureType.osSchemaLocation.empty() )
-                                {
-                                    osXSDFilename =
-                                        oFeatureType.osSchemaLocation;
-                                    if( STARTS_WITH(osXSDFilename, "http://") ||
-                                        STARTS_WITH(osXSDFilename, "https://") ||
-                                        VSIStatExL(osXSDFilename, &sXSDStatBuf,
-                                                   VSI_STAT_EXISTS_FLAG) == 0 )
-                                    {
-                                        bHasFoundXSD = true;
-                                        bHaveSchema = true;
-                                        CPLDebug(
-                                            "GML",
-                                            "Found %s for %s:%s in registry",
-                                            osXSDFilename.c_str(),
-                                            oNamespace.osPrefix.c_str(),
-                                            oFeatureType.osElementName.c_str());
-                                    }
-                                    else
-                                    {
-                                        CPLDebug("GML", "Cannot open %s",
-                                                 osXSDFilename.c_str());
-                                    }
-                                }
-                                else
-                                {
-                                    bHaveSchema = poReader->LoadClasses(
-                                        oFeatureType.osGFSSchemaLocation);
-                                    if( bHaveSchema )
-                                    {
-                                        CPLDebug("GML", "Found %s for %s:%s in registry",
-                                                oFeatureType.osGFSSchemaLocation.c_str(),
-                                                oNamespace.osPrefix.c_str(),
-                                                oFeatureType.osElementName.c_str());
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        /* For WFS, try to fetch the application schema */
-        if( bIsWFS && !bHaveSchema && pszSchemaLocation != NULL &&
-            (pszSchemaLocation[0] == '\'' || pszSchemaLocation[0] == '"') &&
-             strchr(pszSchemaLocation + 1, pszSchemaLocation[0]) != NULL )
-        {
-            char *pszSchemaLocationTmp1 = CPLStrdup(pszSchemaLocation + 1);
-            int nTruncLen = static_cast<int>(
-                strchr(pszSchemaLocation + 1, pszSchemaLocation[0]) -
-                (pszSchemaLocation + 1));
-            pszSchemaLocationTmp1[nTruncLen] = '\0';
-            char *pszSchemaLocationTmp2 =
-                CPLUnescapeString(pszSchemaLocationTmp1, NULL, CPLES_XML);
-            CPLString osEscaped =
-                ReplaceSpaceByPct20IfNeeded(pszSchemaLocationTmp2);
-            CPLFree(pszSchemaLocationTmp2);
-            pszSchemaLocationTmp2 = CPLStrdup(osEscaped);
-            if (pszSchemaLocationTmp2)
-            {
-                // pszSchemaLocationTmp2 is of the form:
-                // http://namespace1 http://namespace1_schema_location http://namespace2 http://namespace1_schema_location2
-                // So we try to find http://namespace1_schema_location that
-                // contains hints that it is the WFS application */ schema,
-                // i.e. if it contains typename= and
-                // request=DescribeFeatureType.
-                char **papszTokens =
-                    CSLTokenizeString2(pszSchemaLocationTmp2, " \r\n", 0);
-                int nTokens = CSLCount(papszTokens);
-                if ((nTokens % 2) == 0)
-                {
-                    for(int i = 0; i < nTokens; i += 2)
-                    {
-                        const char *pszEscapedURL = papszTokens[i + 1];
-                        char *pszLocation =
-                            CPLUnescapeString(pszEscapedURL, NULL, CPLES_URL);
-                        CPLString osLocation = pszLocation;
-                        CPLFree(pszLocation);
-                        if (osLocation.ifind("typename=") != std::string::npos &&
-                            osLocation.ifind("request=DescribeFeatureType") !=
-                                std::string::npos)
-                        {
-                            CPLString osTypeName =
-                                CPLURLGetValue(osLocation, "typename");
-                            papszTypeNames =
-                                CSLTokenizeString2(osTypeName, ",", 0);
-
-                            if (!bHasFoundXSD && CPLHTTPEnabled() &&
-                                CPLFetchBool(
-                                    poOpenInfo->papszOpenOptions,
-                                    "DOWNLOAD_SCHEMA",
-                                    CPLTestBool(CPLGetConfigOption(
-                                        "GML_DOWNLOAD_WFS_SCHEMA", "YES"))))
-                            {
-                                CPLHTTPResult *psResult =
-                                    CPLHTTPFetch(pszEscapedURL, NULL);
-                                if (psResult)
-                                {
-                                    if (psResult->nStatus == 0 &&
-                                        psResult->pabyData != NULL)
-                                    {
-                                        bHasFoundXSD = true;
-                                        osXSDFilename = CPLSPrintf(
-                                            "/vsimem/tmp_gml_xsd_%p.xsd", this);
-                                        VSILFILE *fpMem = VSIFileFromMemBuffer(
-                                            osXSDFilename, psResult->pabyData,
-                                            psResult->nDataLen, TRUE);
-                                        VSIFCloseL(fpMem);
-                                        psResult->pabyData = NULL;
-                                    }
-                                    CPLHTTPDestroyResult(psResult);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                CSLDestroy(papszTokens);
-            }
-            CPLFree(pszSchemaLocationTmp2);
-            CPLFree(pszSchemaLocationTmp1);
-        }
-
-        bool bHasFeatureProperties = false;
-        if( bHasFoundXSD )
-        {
-            std::vector<GMLFeatureClass *> aosClasses;
-            bool bFullyUnderstood = false;
-            bHaveSchema =
-                GMLParseXSD(osXSDFilename, aosClasses, bFullyUnderstood);
-
-            if( bHaveSchema && !bFullyUnderstood && bIsWFSJointLayer )
-            {
-                CPLDebug("GML",
-                         "Schema found, but only partially understood. "
-                         "Cannot be used in a WFS join context");
-
-                std::vector<GMLFeatureClass *>::const_iterator oIter =
-                    aosClasses.begin();
-                std::vector<GMLFeatureClass *>::const_iterator oEndIter =
-                    aosClasses.end();
-                while (oIter != oEndIter)
-                {
-                    GMLFeatureClass *poClass = *oIter;
-
-                    delete poClass;
-                    ++oIter;
-                }
-                aosClasses.resize(0);
-                bHaveSchema = false;
-            }
-
-            if( bHaveSchema )
-            {
-                CPLDebug("GML", "Using %s", osXSDFilename.c_str());
-                std::vector<GMLFeatureClass *>::const_iterator oIter =
-                    aosClasses.begin();
-                std::vector<GMLFeatureClass *>::const_iterator oEndIter =
-                    aosClasses.end();
-                while (oIter != oEndIter)
-                {
-                    GMLFeatureClass *poClass = *oIter;
-
-                    if( poClass->HasFeatureProperties() )
-                    {
-                        bHasFeatureProperties = true;
-                        break;
-                    }
-                    ++oIter;
-                }
-
-                oIter = aosClasses.begin();
-                while (oIter != oEndIter)
-                {
-                    GMLFeatureClass *poClass = *oIter;
-                    ++oIter;
-
-                    // We have no way of knowing if the geometry type is 25D
-                    // when examining the xsd only, so if there was a hint
-                    // it is, we force to 25D.
-                    if (bHas3D && poClass->GetGeometryPropertyCount() == 1)
-                    {
-                        poClass->GetGeometryProperty(0)->SetType(
-                            wkbSetZ((OGRwkbGeometryType)poClass->GetGeometryProperty(0)->GetType()));
-                    }
-
-                    bool bAddClass = true;
-                    // If typenames are declared, only register the matching
-                    // classes, in case the XSD contains more layers, but not if
-                    // feature classes contain feature properties, in which case
-                    // we will have embedded features that will be reported as
-                    // top-level features.
-                    if( papszTypeNames != NULL && !bHasFeatureProperties )
-                    {
-                        bAddClass = false;
-                        char **papszIter = papszTypeNames;
-                        while (*papszIter && !bAddClass)
-                        {
-                            const char *pszTypeName = *papszIter;
-                            if (strcmp(pszTypeName, poClass->GetName()) == 0)
-                                bAddClass = true;
-                            papszIter++;
-                        }
-
-                        // Retry by removing prefixes.
-                        if (!bAddClass)
-                        {
-                            papszIter = papszTypeNames;
-                            while (*papszIter && !bAddClass)
-                            {
-                                const char *pszTypeName = *papszIter;
-                                const char *pszColon = strchr(pszTypeName, ':');
-                                if (pszColon)
-                                {
-                                    pszTypeName = pszColon + 1;
-                                    if (strcmp(pszTypeName,
-                                               poClass->GetName()) == 0)
-                                    {
-                                        poClass->SetName(pszTypeName);
-                                        bAddClass = true;
-                                    }
-                                }
-                                papszIter++;
-                            }
-                        }
-                    }
-
-                    if (bAddClass)
-                        poReader->AddClass(poClass);
-                    else
-                        delete poClass;
-                }
-
-                poReader->SetClassListLocked(true);
-            }
-        }
-
-        if (bHaveSchema && bIsWFS)
-        {
-            if( bIsWFSJointLayer )
-            {
-                BuildJointClassFromXSD();
-            }
-
-            // For WFS, we can assume sequential layers.
-            if (poReader->GetClassCount() > 1 && pszReadMode == NULL &&
-                !bHasFeatureProperties)
-            {
-                CPLDebug("GML",
-                         "WFS output. Using SEQUENTIAL_LAYERS read mode");
-                eReadMode = SEQUENTIAL_LAYERS;
-            }
-            // Sometimes the returned schema contains only <xs:include> that we
-            // don't resolve so ignore it.
-            else if (poReader->GetClassCount() == 0)
-                bHaveSchema = false;
-        }
-
-        CSLDestroy(papszTypeNames);
+        bHasFoundXSD = LookForXSD(bCheckAuxFile, bHasFoundXSD, szHeader,
+                pszSchemaLocation, bHas3D, pszReadMode, pszFilename, poOpenInfo,
+                bHaveSchema, bIsWFSJointLayer);
     }
 
     // Force a first pass to establish the schema.  Eventually we will have
@@ -1207,25 +1269,14 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
                      false) )
     {
         bool bOnlyDetectSRS = bHaveSchema;
-        if( !poReader->PrescanForSchema(true, bAnalyzeSRSPerFeature,
-                                        bOnlyDetectSRS) )
+        if (!poReader->PrescanForSchema(true, bAnalyzeSRSPerFeature,
+              bOnlyDetectSRS))
         {
             // Assume an error was reported.
             return false;
         }
-        if( !bHaveSchema )
-        {
-            if( bIsWFSJointLayer && poReader->GetClassCount() == 1 )
-            {
-                BuildJointClassFromScannedSchema();
-            }
-
-            if( bHasFoundXSD )
-            {
-                CPLDebug("GML", "Generating %s file, ignoring %s",
-                         osGFSFilename.c_str(), osXSDFilename.c_str());
-            }
-        }
+        ForceEstablishSchema(bHaveSchema, bAnalyzeSRSPerFeature,
+                bIsWFSJointLayer, bHasFoundXSD, osGFSFilename);
     }
 
     if (poReader->GetClassCount() > 1 && poReader->IsSequentialLayers() &&
@@ -1237,60 +1288,10 @@ bool OGRGMLDataSource::Open( GDALOpenInfo *poOpenInfo )
 
     // Save the schema file if possible.  Don't make a fuss if we
     // can't.  It could be read-only directory or something.
-    if( !bHaveSchema && !poReader->HasStoppedParsing() &&
-        !STARTS_WITH_CI(pszFilename, "/vsitar/") &&
-        !STARTS_WITH_CI(pszFilename, "/vsizip/") &&
-        !STARTS_WITH_CI(pszFilename, "/vsigzip/vsi") &&
-        !STARTS_WITH_CI(pszFilename, "/vsigzip//vsi") &&
-        !STARTS_WITH_CI(pszFilename, "/vsicurl/") &&
-        !STARTS_WITH_CI(pszFilename, "/vsicurl_streaming/"))
-    {
-        VSILFILE *l_fp = NULL;
-
-        VSIStatBufL sGFSStatBuf;
-        if( VSIStatExL(osGFSFilename, &sGFSStatBuf, VSI_STAT_EXISTS_FLAG) != 0 &&
-            (l_fp = VSIFOpenL(osGFSFilename, "wt")) != NULL )
-        {
-            VSIFCloseL(l_fp);
-            poReader->SaveClasses(osGFSFilename);
-        }
-        else
-        {
-            CPLDebug("GML",
-                     "Not saving %s files already exists or can't be created.",
-                     osGFSFilename.c_str());
-        }
-    }
+    SaveSchemaFile(bHaveSchema, pszFilename, osGFSFilename);
 
     // Translate the GMLFeatureClasses into layers.
-    papoLayers = static_cast<OGRGMLLayer **>(
-        CPLCalloc(sizeof(OGRGMLLayer *), poReader->GetClassCount()));
-    nLayers = 0;
-
-    if (poReader->GetClassCount() == 1 && nNumberOfFeatures != 0)
-    {
-        GMLFeatureClass *poClass = poReader->GetClass(0);
-        GIntBig nFeatureCount = poClass->GetFeatureCount();
-        if (nFeatureCount < 0)
-        {
-            poClass->SetFeatureCount(nNumberOfFeatures);
-        }
-        else if (nFeatureCount != nNumberOfFeatures)
-        {
-            CPLDebug("GML",
-                     "Feature count in header, "
-                     "and actual feature count don't match");
-        }
-    }
-
-    if (bIsWFS && poReader->GetClassCount() == 1)
-        bUseGlobalSRSName = true;
-
-    while( nLayers < poReader->GetClassCount() )
-    {
-        papoLayers[nLayers] = TranslateGMLSchema(poReader->GetClass(nLayers));
-        nLayers++;
-    }
+    TranslateFeatureToLayers(nNumberOfFeatures);
 
     return true;
 }
@@ -1942,7 +1943,6 @@ OGRGMLDataSource::ICreateLayer(const char *pszLayerName,
     // Add layer to data source layer list.
     papoLayers = static_cast<OGRGMLLayer **>(
         CPLRealloc(papoLayers, sizeof(OGRGMLLayer *) * (nLayers + 1)));
-
     papoLayers[nLayers++] = poLayer;
 
     return poLayer;

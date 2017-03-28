@@ -164,6 +164,29 @@ class OGRGMLDataSource : public OGRDataSource
 
     void                WriteTopElements();
 
+  private:
+
+    GIntBig              GetNumberOfFeatures(char*& szPtr);
+    bool                 LookForXSD(bool bCheckAuxFile, bool bHasFoundXSD, char szHeader[],
+                                    const char* pszSchemaLocation, const bool bHas3D,
+                                    const char* pszReadMode, const char*& pszFilename,
+                                    GDALOpenInfo*& poOpenInfo, bool& bHaveSchema,
+                                    bool& bIsWFSJointLayer);
+    bool                 LoadXSD(bool bHaveSchema, bool bIsWFSJointLayer, const bool bHas3D,
+                                bool& bHasFeatureProperties, char** papszTypeNames);
+    bool                 FetchApplicationSchemaWFS(const char* pszSchemaLocation, bool bHasFoundXSD,
+                                char**& papszTypeNames, GDALOpenInfo* poOpenInfo);
+    void                 SaveSchemaFile(bool bHaveSchema, const char* pszFilename,
+                                CPLString osGFSFilename);
+    void                 ForceEstablishSchema(bool bHaveSchema, bool bAnalyzeSRSPerFeature,
+                                bool bIsWFSJointLayer, bool bHasFoundXSD, CPLString osGFSFilename);
+    bool                 LookForGfsFile(bool bCheckAuxFile, bool bHaveSchema,
+                                const char* pszXSDFilenameTmp, CPLString& osGFSFilename,
+                                const char*& pszFilename);
+    bool                 ResolvXlink(const char* pszOption, bool bCheckAuxFile, bool bResolve,
+                                char*& pszXlinkResolvedFilename, const char*& pszFilename);
+    void                 TranslateFeatureToLayers(GIntBig nNumberOfFeatures);
+
   public:
                         OGRGMLDataSource();
                         virtual ~OGRGMLDataSource();
