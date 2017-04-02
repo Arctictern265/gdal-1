@@ -18,6 +18,7 @@ cd /vagrant
             --with-python --with-poppler \
             --with-podofo --with-spatialite --with-java --with-mdb \
             --with-jvm-lib-add-rpath --with-epsilon --with-gta \
+            --with-sosi --with-rasterlite2 --with-hdf5 \
             --with-mysql --with-liblzma --with-webp --with-libkml \
             --with-openjpeg=/usr/local --with-armadillo
 
@@ -31,8 +32,6 @@ cd ..
 sudo rm -f /usr/lib/libgdal.so*
 sudo make install
 sudo ldconfig
-# not sure why we need to do that
-#sudo cp -r /usr/lib/python2.7/site-packages/*  /usr/lib/python2.7/dist-packages/
 
 cd swig/perl
 make veryclean
@@ -41,14 +40,11 @@ make test
 cd ../..
 
 cd swig/java
-JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64 make
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 make
 make test
 cd ../..
 
 cd swig/csharp
-# There's an issue with swig 2.0.4 from ubuntu 12.04
-PATH=$HOME/install-swig-1.3.40/bin:$PATH make generate
 make
-# For some reason, this fails on Vagrant ubuntu 12.04
-# make test
+make test
 cd ../..
