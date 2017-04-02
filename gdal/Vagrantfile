@@ -34,7 +34,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb,ovrd|
      ovrd.vm.network :forwarded_port, guest: 80, host: 8080
-     ovrd.vm.box = "precise64"
+     ovrd.vm.box = "trusty64"
      ovrd.vm.box_url = "http://files.vagrantup.com/precise64.box"
      vb.customize ["modifyvm", :id, "--memory", vm_ram]
      vb.customize ["modifyvm", :id, "--cpus", vm_cpu]
@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider :lxc do |lxc,ovrd|
-    ovrd.vm.box = "fgrehm/precise64-lxc"
+    ovrd.vm.box = "cultuurnet/ubuntu-14.04-64-puppet"
     lxc.backingstore = 'dir'
     lxc.customize 'cgroup.memory.limit_in_bytes', vm_ram_bytes
     lxc.customize 'aa_allow_incomplete', 1
@@ -51,27 +51,33 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
  
   config.vm.provider :hyperv do |hyperv,ovrd|
-    ovrd.vm.box = "hashicorp/precise64"
+    ovrd.vm.box = "withinboredom/Trusty64"
     ovrd.ssh.username = "vagrant"
     hyperv.cpus = vm_cpu
     hyperv.memory = vm_ram
+    # If you want to avoid copying an entire image with
+    # differencing disk feature, uncomment a following line.
+    # hyperv.differencing_disk = true
     hyperv.vmname = "gdal-vagrant"
   end
 
   ppaRepos = [
-    "ppa:ubuntugis/ubuntugis-unstable", "ppa:marlam/gta"
+    "ppa:openjdk-r/ppa",
+    "ppa:ubuntugis/ubuntugis-unstable", "ppa:miurahr/gta",
+    "ppa:miurahr/fyba"
   ]
 
   packageList = [
+    "autoconf",
+    "automake",
     "subversion",
     "python-numpy",
     "python-dev",
     "postgis",
-    "postgresql-server-dev-9.1",
-    "postgresql-9.1-postgis",
-    "postgresql-9.1-postgis-scripts",
+    "postgresql-server-dev-9.3",
+    "postgresql-9.3-postgis-2.2",
+    "postgresql-9.3-postgis-scripts",
     "libmysqlclient-dev",
-    #"mysql-server",
     "libpq-dev",
     "libpng12-dev",
     "libjpeg-dev",
@@ -86,6 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libnetcdf-dev",
     "netcdf-bin",
     "libpoppler-dev",
+    "libpoppler-private-dev",
     "libspatialite-dev",
     "gpsbabel",
     "libboost-all-dev",
@@ -93,26 +100,34 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libmpfr-dev",
     "libkml-dev",
     "swig",
-    "libhdf4-alt-dev",
-    "libhdf5-serial-dev",
+    "libhdf4-dev",
+    "libhdf5-openmpi-dev",
     "libpodofo-dev",
     "poppler-utils",
     "libfreexl-dev",
     "unixodbc-dev",
     "libwebp-dev",
-    "openjdk-7-jdk",
+    "openjdk-8-jdk",
     "libepsilon-dev",
     "libgta-dev",
     "liblcms2-2",
     "libpcre3-dev",
     "libjasper-dev",
     "libarmadillo-dev",
+    "libcrypto++-dev",
+    "libdap-dev",
+    "libogdi3.2-dev",
+    "libcfitsio3-dev",
+    "libfyba-dev",
+    "libsfcgal-dev",
+    "librasterlite-dev",
+    "couchdb",
     "make",
     "g++",
-    "cmake", # for openjpeg
     "bison",
     "flex",
     "doxygen",
+    "texlive-latex-base",
     "vim",
     "ant",
     "mono-mcs"
@@ -123,8 +138,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   if Dir.glob("#{File.dirname(__FILE__)}/.vagrant/machines/default/*/id").empty?
-	  pkg_cmd = "sed -i 's#deb http://us.archive.ubuntu.com/ubuntu/#deb mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; "
-
+	  pkg_cmd = "sed -i 's#deb http://.*archive.ubuntu.com/ubuntu/#deb mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; "
+    pkg_cmd << 'echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty universe" > /etc/apt/sources.list.d/official-ubuntu-xenial-universe.list'
 	  pkg_cmd << "apt-get update -qq; apt-get install -q -y python-software-properties; "
 
 	  if ppaRepos.length > 0
@@ -136,8 +151,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  pkg_cmd << "apt-get install -q -y " + packageList.join(" ") << " ; "
 	  config.vm.provision :shell, :inline => pkg_cmd
     scripts = [
-      "sfcgal.sh",
-      "swig-1.3.40.sh",
+      "cmake.sh",
       "libkml.sh",
       "openjpeg.sh",
       "gdal.sh",
