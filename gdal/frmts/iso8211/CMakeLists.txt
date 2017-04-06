@@ -4,6 +4,7 @@
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
 # ******************************************************************************
 # * Copyright (C) 2013 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -24,7 +25,7 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts_iso8211")
 project ("lib${LIB_NAME}")
@@ -46,5 +47,6 @@ set(LIB_CSOURCES
     ddfsubfielddefn.cpp
 )
 
+add_definitions(-DFRMT_iso8211)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES} ${LIB_HHEADERS})	

@@ -37,7 +37,9 @@ project ("lib${LIB_NAME}")
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)  
-
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/mem)
 
 find_package(GEOS)
 if(GEOS_FOUND)
@@ -83,6 +85,7 @@ set(LIB_INST_HEADERS
 	ogr_p.h
 	ogr_spatialref.h
 	ogr_srs_api.h
+    ogr_sfcgal.h
 )
 
 set(LIB_HHEADERS ${LIB_INST_HEADERS}
@@ -95,10 +98,14 @@ set(LIB_HHEADERS ${LIB_INST_HEADERS}
     swq.h
     osr_cs_wkt.h
     osr_cs_wkt_parser.h
+	ogr_geocoding.h
+    ogr_json_header.h
+    ogr_libs.h
+    ogr_xerces_headers.h
 )
 
 set(LIB_CSOURCES
-    gml2ogrgeometry.cpp 
+    gml2ogrgeometry.cpp
     ogr2gmlgeometry.cpp 
     ograssemblepolygon.cpp
     ogrct.cpp 
@@ -121,7 +128,8 @@ set(LIB_CSOURCES
     ogrspatialreference.cpp 
     ogrsurface.cpp
     ogrutils.cpp
-    ogr_api.cpp 
+    ogr_api.cpp
+    ograpispy.cpp
     # #ogr_capi_test.c
     ogr_fromepsg.cpp
     ogr_opt.cpp 
@@ -146,7 +154,18 @@ set(LIB_CSOURCES
     swq_select.cpp 
     ogrgeomediageometry.cpp 
 	ogrpgeogeometry.cpp 
-    ogrfeaturequery.cpp 
+    ogrfeaturequery.cpp
+	ogr_geocoding.cpp
+    ogr_xerces.cpp
+    ogrcircularstring.cpp
+    ogrcompoundcurve.cpp
+    ogrcurvecollection.cpp
+    ogrcurvepolygon.cpp
+    ogrmulticurve.cpp
+    ogrmultisurface.cpp
+    ogrpolyhedralsurface.cpp
+    ogrtriangle.cpp
+    ogrtriangulatedsurface.cpp
 )
 
 # needed packages
@@ -185,6 +204,14 @@ endif(GEOS_FOUND)
 if(PROJ_FOUND)
     set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${PROJ_LIBRARY})
 endif(PROJ_FOUND)
+
+find_package(XercesC)
+if(XercesC_FOUND)
+	include_directories(${XercesC_INCLUDE_DIRS})
+	include_directories(/usr/include/xercesc)
+	add_definitions(-DHAVE_XERCES)
+	set(GDAL_HAVE_XERCES ON CACHE INTERNAL "GDAL_HAVE_XERCES")
+endif()
 
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
 

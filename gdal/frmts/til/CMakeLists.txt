@@ -24,7 +24,7 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts_til")
 project ("lib${LIB_NAME}")
@@ -38,6 +38,6 @@ set(LIB_CSOURCES
 	tildataset.cpp
 )
 
+add_definitions(-DFRMT_til)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})	
-
+add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})

@@ -2,6 +2,7 @@
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
 # * Copyright (C) 2013 Bishop
 # * 
@@ -37,5 +38,9 @@ set(LIB_CSOURCES
 	dimapdataset.cpp
 )
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})	
+option(GDAL_ENABLE_FRMT_DIMAP "Set ON to build dimap driver" OFF)
+if(GDAL_ENABLE_FRMT_DIMAP)
+	add_definitions(-DFRMT_dimap)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
+endif()

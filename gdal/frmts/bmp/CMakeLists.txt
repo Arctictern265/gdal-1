@@ -1,8 +1,10 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# * Author:   Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
+# *           Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
+# * Copyright (C) 2017 Hiroshi Miura
 # * Copyright (C) 2013 Bishop
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
@@ -37,5 +39,10 @@ set(LIB_CSOURCES
 	bmpdataset.cpp
 )
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})	
+option(GDAL_ENABLE_FRMT_BMP "Set ON to build bmp driver" OFF)
+if(GDAL_ENABLE_FRMT_BMP)
+	add_definitions(-DFRMT_bmp)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+	add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
+endif(GDAL_ENABLE_FRMT_BMP)
+

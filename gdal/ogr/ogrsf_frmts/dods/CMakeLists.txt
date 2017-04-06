@@ -1,0 +1,67 @@
+# ******************************************************************************
+# * Project:  CMake4GDAL
+# * Purpose:  CMake build scripts
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# ******************************************************************************
+# * Copyright (C) 2013 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
+# *
+# * Permission is hereby granted, free of charge, to any person obtaining a
+# * copy of this software and associated documentation files (the "Software"),
+# * to deal in the Software without restriction, including without limitation
+# * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# * and/or sell copies of the Software, and to permit persons to whom the
+# * Software is furnished to do so, subject to the following conditions:
+# *
+# * The above copyright notice and this permission notice shall be included
+# * in all copies or substantial portions of the Software.
+# *
+# * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# * DEALINGS IN THE SOFTWARE.
+# ******************************************************************************
+
+cmake_minimum_required (VERSION 3.8)
+
+set(LIB_NAME "ogrsf_dods")
+project ("lib${LIB_NAME}")
+
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)  
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)  
+
+set(LIB_HHEADERS
+        libdap_headers.h
+        ogr_dods.h
+)
+
+set(LIB_CSOURCES
+        ogrdodsdatasource.cpp
+        ogrdodsdriver.cpp
+        ogrdodsfielddefn.cpp
+        ogrdodsgrid.cpp
+        ogrdodslayer.cpp
+        ogrdodssequencelayer.cpp
+)
+
+include(MacroOptionalAddDriver)
+MACRO_ADD_OGR_DEFAULT_DRIVER(DODS dods ON)
+if(OGR_ENABLE_DODS)
+    find_package(DAP REQUIRED)
+    find_package(LibXml2 REQUIRED)
+    if(DAP_FOUND AND LIBXML2_FOUND)
+        if(DAP_VERSION VERSION_GREATER_EQUAL "3.9")
+            add_definitions(-DLIBDAP_39)
+            if(DAP_VERSION VERSION_GREATER_EQUAL "3.10")
+                add_definitions(-DLIBDAP_310)
+            endif()
+        endif()
+        include_directories(${DAP_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR})
+        set(LIBS ${LIBS} ${DAP_LIBRARIES} ${LIBXML2_LIBRARIES})
+        set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+        add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+    endif()
+endif()

@@ -24,7 +24,7 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts_jpeg")
 project ("lib${LIB_NAME}")
@@ -34,7 +34,7 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
 option(GDAL_USE_LIBJPEG_INTERNAL "Set ON to use internal libjpeg" OFF)
-if(GDAL_USE_LIBJPEG_INTERNAL)	
+if(GDAL_USE_LIBJPEG_INTERNAL)
 	include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/jpeg/libjpeg)
 	add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/jpeg/libjpeg ${GDAL_ROOT_BINARY_DIR}/frmts/jpeg/libjpegm)
 else(GDAL_USE_LIBJPEG_INTERNAL)
@@ -78,23 +78,28 @@ set(LIB_CSOURCES
 	jpgdataset.cpp
 )
 
+add_definitions(-DFRMT_jpeg)
+
 if(GDAL_JPEG12_SUPPORTED)
 	set(LIB_CSOURCES ${LIB_CSOURCES}
 		jpgdataset_12.cpp
 	)
 endif(GDAL_JPEG12_SUPPORTED)
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})	
+option(GDAL_ENABLE_FRMT_JPEG "Set ON to build jpeg driver" OFF)
+if(GDAL_ENABLE_FRMT_JPEG)
+	set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+	add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
 
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB})
+	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB})
 
-if(JPEG_FOUND)
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JPEG_LIBRARIES})
-endif(JPEG_FOUND)
+	if(JPEG_FOUND)
+		set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JPEG_LIBRARIES})
+	endif(JPEG_FOUND)
 
-if(ZLIB_FOUND)
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${ZLIB_LIBRARIES})
-endif(ZLIB_FOUND)
+	if(ZLIB_FOUND)
+		set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${ZLIB_LIBRARIES})
+	endif(ZLIB_FOUND)
 
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
+	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
+endif(GDAL_ENABLE_FRMT_JPEG)

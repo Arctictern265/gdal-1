@@ -35,6 +35,7 @@ cpl_config.h
 /x64
 /.vs
 /.vscode
+/.idea
 frmts/jpeg/libjpeg12/*.c
 frmts/jpeg/libjpeg12/*.h
 libgdal.a

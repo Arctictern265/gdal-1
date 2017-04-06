@@ -91,6 +91,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libboost-all-dev",
     "libgmp-dev",
     "libmpfr-dev",
+    "libkml-dev",
     "swig",
     "libhdf4-alt-dev",
     "libhdf5-serial-dev",
@@ -108,7 +109,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libarmadillo-dev",
     "make",
     "g++",
-    "autoconf", # for libkml
     "cmake", # for openjpeg
     "bison",
     "flex",

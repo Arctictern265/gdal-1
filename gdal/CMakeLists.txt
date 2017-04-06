@@ -1,7 +1,11 @@
-# ******************************************************************************# * Project:  CMake4GDAL# * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# ******************************************************************************
+# * Project:  CMake4GDAL
+# * Purpose:  CMake build scripts
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
 # * Copyright (C) 2012,2013 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -22,12 +26,13 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(PROJECT_NAME "gdallib")
 project(${PROJECT_NAME})
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
+
 set(CMAKE_COLOR_MAKEFILE ON)
 
 # parse the version number from gdal_version.h and include in GDAL_MAJOR_VERSION and GDAL_MINOR_VERSION
@@ -48,7 +53,7 @@ string (REGEX MATCH "([0-9]+)"
 # Setup package meta-data
 set(GDAL_VERSION ${GDAL_MAJOR_VERSION}.${GDAL_MINOR_VERSION}.${GDAL_REV_VERSION})
 message(STATUS "gdal version=[${GDAL_VERSION}]")
-    
+
 set(GDAL_LIB_NAME gdal${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION})
 message(STATUS "GDAL lib name ... " ${GDAL_LIB_NAME})
 
@@ -59,19 +64,21 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(GDAL_ROOT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(GDAL_ROOT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -W4 -wd4127 -wd4251 -wd4275 -wd4786 -wd4100 -wd4245 -wd4206 -wd4018 -wd4389")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4 -wd4127 -wd4251 -wd4275 -wd4786 -wd4100 -wd4245 -wd4206 -wd4018 -wd4389")
+set(GDAL_ROOT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+add_definitions(-DGDAL_COMPILATION)
+set(CMAKE_CXX_STANDARD 11)
+
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # uninstall target
 configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
-   
+
 # For windows, do not allow the compiler to use default target (Vista).
 if(WIN32)
   add_definitions(-D_WIN32_WINNT=0x0501 -D_USRDLL)
-endif(WIN32)
+endif()
 
 if(MSVC)
   set(CMAKE_DEBUG_POSTFIX "d")
@@ -79,26 +86,27 @@ if(MSVC)
   #add_definitions(-D_MBCS)
   set(GDAL_CSOURCES ${GDAL_CSOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)
   source_group("Resource Files" FILES ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)  
-endif(MSVC)
+endif()
 
-add_definitions(-DSTRICT -DHAVE_SSE_AT_COMPILE_TIME)
+add_definitions(-DSTRICT -DHAVE_SSE_AT_COMPILE_TIME)
+
 if(UNIX)
     add_definitions(-DCPL_LSB)
-endif(UNIX)
+endif()
 
 if(MSVC)
     if(CMAKE_CL_64)
         set_target_properties(${GDAL_LIB_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
         add_definitions(-D_WIN64)
     endif(CMAKE_CL_64)
-endif(MSVC)
+endif()
 
 if(UNIX)
      if(CMAKE_COMPILER_IS_GNUCXX OR CV_ICC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fno-strict-aliasing")#-Wextra -Wall -W -pthread -O2 -fno-strict-aliasing -pthrea
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fno-strict-aliasing")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fno-strict-aliasing -D_FORTIFY_SOURCE")
      endif()
-endif(UNIX)
+endif()
 
 option(GDAL_USE_CPL "Set ON to use cpl" ON)
 
@@ -118,28 +126,29 @@ add_subdirectory(alg)
 add_subdirectory(ogr)
 add_subdirectory(frmts)
 add_subdirectory(apps)
+add_subdirectory(gnm)
 
 list(REMOVE_DUPLICATES GDAL_TARGET_OBJECTS)
 foreach(TO ${GDAL_TARGET_OBJECTS})
 	message(STATUS "gdal link=${TO}")
-endforeach(TO)
+endforeach()
   
 option(GDAL_BUILD_SHARED "Set ON to build shared library" ON)
 if(GDAL_BUILD_SHARED)
 	add_library(${GDAL_LIB_NAME} SHARED ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})#${GDAL_HHEADERS} 
-else(GDAL_BUILD_SHARED)
+else()
 	add_library(${GDAL_LIB_NAME} STATIC ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})#${GDAL_HHEADERS} 
-endif(GDAL_BUILD_SHARED)
+endif()
 
 configure_file(${CMAKE_MODULE_PATH}/gdal_def.cmake ${GDAL_ROOT_SOURCE_DIR}/gcore/gdal_def.h @ONLY)
 
 list(REMOVE_DUPLICATES GDAL_TARGET_LINK_LIB)
 foreach(TL ${GDAL_TARGET_LINK_LIB})
 	message(STATUS "gdal target link lib=${TL}")
-endforeach(TL)
+endforeach()
 if(GDAL_TARGET_LINK_LIB)
 	target_link_libraries(${GDAL_LIB_NAME} ${GDAL_TARGET_LINK_LIB})
-endif(GDAL_TARGET_LINK_LIB)
+endif()
  
 # if(PROJ_FOUND)
     # target_link_libraries(${GDAL_LIB_NAME} ${PROJ_LIBRARY})
@@ -160,12 +169,12 @@ if(WIN32)
 			RUNTIME DESTINATION bin
 			ARCHIVE DESTINATION lib/x64
 			LIBRARY DESTINATION lib/x64)
-    else(CMAKE_CL_64)
+    else()
         install(TARGETS ${GDAL_LIB_NAME}
 			RUNTIME DESTINATION bin
 			ARCHIVE DESTINATION lib/x86
 			LIBRARY DESTINATION lib/x86)
-    endif(CMAKE_CL_64)
+    endif()
 	install(FILES ${GDAL_ROOT_SOURCE_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
 else(WIN32)
     install(TARGETS ${GDAL_LIB_NAME}
@@ -173,6 +182,6 @@ else(WIN32)
         ARCHIVE DESTINATION lib/gdal
         LIBRARY DESTINATION lib/gdal)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
-endif(WIN32) 
+endif()
     
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)

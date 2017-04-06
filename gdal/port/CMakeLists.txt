@@ -24,7 +24,7 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "cpl")
 project ("lib${LIB_NAME}")
@@ -229,6 +229,7 @@ set(LIB_HHEADERS
     cpl_atomic_ops.h
     cpl_config_extras.h
     cpl_conv.h
+    cpl_cpu_features.h
     cpl_csv.h
     cpl_error.h
     cpl_hash_set.h
@@ -238,10 +239,14 @@ set(LIB_HHEADERS
     cpl_multiproc.h
     cpl_port.h
     cpl_quad_tree.h
+    cpl_sha1.h
+    cpl_sha256.h
     cpl_string.h
     cpl_time.h
     cpl_vsi.h
+    cpl_vsi_error.h
     cpl_vsi_virtual.h
+    cpl_virtualmem.h
     #cpl_win32ce_api.h
     #cpl_wince.h
     gdal_csv.h
@@ -256,7 +261,8 @@ set(LIB_CSOURCES
     cplstringlist.cpp
     cpl_atomic_ops.cpp
     cpl_base64.cpp
-    cpl_conv.cpp 
+    cpl_conv.cpp
+    cpl_cpu_features.cpp
     cpl_csv.cpp 
     cpl_error.cpp 
     cpl_findfile.cpp
@@ -270,24 +276,29 @@ set(LIB_CSOURCES
     cpl_quad_tree.cpp 
     cpl_recode.cpp 
     cpl_recode_iconv.cpp 
-    cpl_recode_stub.cpp 
+    cpl_recode_stub.cpp
+    cpl_sha1.cpp
+    cpl_sha256.cpp
     cpl_string.cpp 
     cpl_strtod.cpp 
-    cpl_time.cpp 
+    cpl_time.cpp
+    cpl_virtualmem.cpp
     cpl_vsil.cpp 
     cpl_vsil_abstract_archive.cpp
     cpl_vsil_buffered_reader.cpp 
-    cpl_vsil_cache.cpp 
-    cpl_vsil_curl.cpp 
-    #cpl_vsil_simple.cpp 
+    cpl_vsil_cache.cpp
+    cpl_vsil_crypt.cpp
+    cpl_vsil_curl.cpp
+    #cpl_vsil_simple.cpp
     cpl_vsil_sparsefile.cpp 
     cpl_vsil_stdin.cpp 
     cpl_vsil_stdout.cpp 
     cpl_vsil_subfile.cpp 
-    cpl_vsil_tar.cpp     
-    cpl_vsisimple.cpp 
+    cpl_vsil_tar.cpp
+    cpl_vsil_win32.cpp
+    cpl_vsisimple.cpp
+    cpl_vsi_error.cpp
     cpl_vsi_mem.cpp 
-    #cpl_win32ce_api.cpp 
 	cpl_xml_validate.cpp
     cpl_spawn.cpp
     cpl_google_oauth2.cpp
@@ -352,7 +363,7 @@ if(GDAL_USE_CURL)
 			cpl_vsil_curl_streaming.cpp
 		)
 	endif(CURL_FOUND)
-endif(GDAL_USE_CURL)	
+endif(GDAL_USE_CURL)
 
 #check Iconv
 option(GDAL_USE_ICONV "Set ON to use libiconv" ON)

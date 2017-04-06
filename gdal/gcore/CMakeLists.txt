@@ -38,9 +38,16 @@ if(GDAL_PAM_ENABLED)
 	add_definitions(-DPAM_ENABLED)
 endif(GDAL_PAM_ENABLED)
 
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/alg)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/vrt)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/mem)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 
 set(LIB_HHEADERS
     gdal_version.h

@@ -1,9 +1,11 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
 # * Copyright (C) 2012 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -24,114 +26,121 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gdal)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
+
+# Builtin formats
+add_subdirectory(gxf)
+add_subdirectory(gtiff)
+add_subdirectory(hfa)
+add_subdirectory(aigrid)
+add_subdirectory(aaigrid)
+add_subdirectory(ceos)
+add_subdirectory(ceos2)
+add_subdirectory(iso8211)
+add_subdirectory(xpm)
+add_subdirectory(sdts)
+add_subdirectory(raw)
+add_subdirectory(dted)
+add_subdirectory(mem)
+add_subdirectory(jdem)
+add_subdirectory(envisat)
+add_subdirectory(elas)
+add_subdirectory(fit)
+add_subdirectory(vrt)
+add_subdirectory(usgsdem)
+add_subdirectory(l1b)
+add_subdirectory(nitf)
+add_subdirectory(bmp)
+add_subdirectory(airsar)
+add_subdirectory(rs2)
+add_subdirectory(ilwis)
+add_subdirectory(rmf)
+add_subdirectory(leveller)
+add_subdirectory(sgi)
+add_subdirectory(srtmhgt)
+add_subdirectory(idrisi)
+add_subdirectory(gsg)
+add_subdirectory(ingr)
+add_subdirectory(ers)
+add_subdirectory(jaxapalsar)
+add_subdirectory(dimap)
+add_subdirectory(gff)
+add_subdirectory(cosar)
+add_subdirectory(pds)
+add_subdirectory(adrg)
+add_subdirectory(coasp)
+add_subdirectory(tsx)
+add_subdirectory(terragen)
+add_subdirectory(blx)
+add_subdirectory(msgn)
+add_subdirectory(til)
+add_subdirectory(r)
+add_subdirectory(northwood)
+add_subdirectory(saga)
+add_subdirectory(xyz)
+add_subdirectory(hf2)
+add_subdirectory(kmlsuperoverlay)
+add_subdirectory(ctg)
+add_subdirectory(e00grid)
+add_subdirectory(zmap)
+add_subdirectory(ngsgeoid)
+add_subdirectory(iris)
+add_subdirectory(map)
+add_subdirectory(cals)
+add_subdirectory(safe)
+add_subdirectory(sentinel2)
+add_subdirectory(derived)
+add_subdirectory(prf)
+add_subdirectory(mrf)
+add_subdirectory(webp)
+add_subdirectory(wcs)
+add_subdirectory(wms)
+add_subdirectory(plmosaic)
+add_subdirectory(wmts)
+add_subdirectory(grib)
+add_subdirectory(bsb)
+add_subdirectory(openjpeg)
+add_subdirectory(jpeg2000)
+add_subdirectory(netcdf)
+add_subdirectory(hdf4)
+add_subdirectory(hdf5)
+add_subdirectory(ogdi)
+add_subdirectory(gif)
+add_subdirectory(jpeg)
+add_subdirectory(gta)
+add_subdirectory(png)
+add_subdirectory(pcraster)
+add_subdirectory(fits)
+add_subdirectory(arg)
+
+# OPTIONAL Formats
+add_subdirectory(pcidsk)
+# libz dependency
+add_subdirectory(rik)
+add_subdirectory(ozi)
+add_subdirectory(pdf)
+# sqlite dependency
+add_subdirectory(rasterlite)
+add_subdirectory(mbtiles)
+# optional drivers
+add_subdirectory(postgisraster)
+add_subdirectory(jpegls)
+add_subdirectory(bpg)
+add_subdirectory(dods)
+add_subdirectory(dds)
+
 
 set(LIB_CSOURCES
 	gdalallregister.cpp
 )
-
-add_definitions(-DFRMT_gtiff)
-add_subdirectory(gtiff)
-add_definitions(-DFRMT_hfa)
-add_subdirectory(hfa)
-add_definitions(-DFRMT_vrt)
-add_subdirectory(vrt)
-#maybe make depended by s57 ogr driver
-add_definitions(-DFRMT_iso8211)
-add_subdirectory(iso8211)
-
-option(GDAL_ENABLE_FRMT_BMP "Set ON to build bmp driver" OFF)
-if(GDAL_ENABLE_FRMT_BMP)
-	add_definitions(-DFRMT_bmp)
-	add_subdirectory(bmp)
-endif(GDAL_ENABLE_FRMT_BMP)
-
-option(GDAL_ENABLE_FRMT_DIMAP "Set ON to build dimap driver" OFF)
-if(GDAL_ENABLE_FRMT_DIMAP)
-	add_definitions(-DFRMT_dimap)
-	add_subdirectory(dimap)
-endif(GDAL_ENABLE_FRMT_DIMAP)
-
-option(GDAL_ENABLE_FRMT_MEM "Set ON to build memory raster driver" OFF)
-if(GDAL_ENABLE_FRMT_MEM)
-	add_definitions(-DFRMT_mem)
-	add_subdirectory(mem)
-endif(GDAL_ENABLE_FRMT_MEM)
-
-option(GDAL_ENABLE_FRMT_RAW "Set ON to build raw driver" OFF)
-if(GDAL_ENABLE_FRMT_RAW)
-	add_definitions(-DFRMT_raw)
-	add_subdirectory(raw)
-endif(GDAL_ENABLE_FRMT_RAW)
-
-# need by apps
-# option(GDAL_ENABLE_FRMT_VRT "Set ON to build virtual raster driver" OFF)
-# if(GDAL_ENABLE_FRMT_VRT)
-	# add_definitions(-DFRMT_vrt)
-	# add_subdirectory(vrt)
-# endif(GDAL_ENABLE_FRMT_VRT)
-
-option(GDAL_ENABLE_FRMT_SAGA "Set ON to build saga raster driver" OFF)
-if(GDAL_ENABLE_FRMT_SAGA)
-	add_definitions(-DFRMT_saga)
-	add_subdirectory(saga)
-endif(GDAL_ENABLE_FRMT_SAGA)
-
-option(GDAL_ENABLE_FRMT_JPEG "Set ON to build jpeg driver" OFF)
-if(GDAL_ENABLE_FRMT_JPEG)
-	add_definitions(-DFRMT_jpeg)
-	add_subdirectory(jpeg)
-endif(GDAL_ENABLE_FRMT_JPEG)
-
-option(GDAL_ENABLE_FRMT_PNG "Set ON to build png driver" OFF)
-if(GDAL_ENABLE_FRMT_PNG)
-	add_definitions(-DFRMT_png)
-	add_subdirectory(png)
-endif(GDAL_ENABLE_FRMT_PNG)
-
-option(GDAL_ENABLE_FRMT_GIF "Set ON to build gif driver" OFF)
-if(GDAL_ENABLE_FRMT_GIF)
-	add_definitions(-DFRMT_gif)
-	add_subdirectory(gif)
-endif(GDAL_ENABLE_FRMT_GIF)
-
-option(GDAL_ENABLE_FRMT_TIL "Set ON to build til driver" OFF)
-if(GDAL_ENABLE_FRMT_TIL)
-	add_definitions(-DFRMT_til)
-	add_subdirectory(til)
-endif(GDAL_ENABLE_FRMT_TIL)
-
-option(GDAL_ENABLE_FRMT_OZI "Set ON to build ozi driver" OFF)
-if(GDAL_ENABLE_FRMT_OZI)
-	add_definitions(-DFRMT_ozi)
-	add_subdirectory(ozi)
-endif(GDAL_ENABLE_FRMT_OZI)
-
-option(GDAL_ENABLE_FRMT_OZIMAP "Set ON to build ozi map driver" OFF)
-if(GDAL_ENABLE_FRMT_OZIMAP)
-	add_definitions(-DFRMT_map)
-	add_subdirectory(map)
-endif(GDAL_ENABLE_FRMT_OZIMAP)
-
-option(GDAL_ENABLE_FRMT_POSTGISRASTER "Set ON to build postgis raster driver" OFF)
-if(GDAL_ENABLE_FRMT_POSTGISRASTER)
-	add_definitions(-DFRMT_postgisraster)
-	add_subdirectory(postgisraster)
-endif(GDAL_ENABLE_FRMT_POSTGISRASTER)
-
-include(CMakeDependentOption)
-
-CMAKE_DEPENDENT_OPTION(GDAL_ENABLE_FRMT_WMS "Set ON to build wms driver" OFF "GDAL_USE_CURL" OFF)
-#option(GDAL_ENABLE_FRMT_WMS "Set ON to build wms driver" OFF)
-if(GDAL_ENABLE_FRMT_WMS)
-	add_definitions(-DFRMT_wms)
-	add_subdirectory(wms)
-endif(GDAL_ENABLE_FRMT_WMS)
 
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

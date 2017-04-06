@@ -4,6 +4,7 @@
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
 # ******************************************************************************
 # * Copyright (C) 2013 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -24,17 +25,19 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "ogrsf_s57")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)  
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)  
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)  
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/iso8211)
 
-add_definitions(-DS57_BUILTIN_CLASSES)
+option(OGR_ENABLE_S57_BUILTIN_CLASSES "Set ON to build s57 driver with builin classes" OFF)
+if (OGR_ENABLE_${_name})
+    add_definitions(-DS57_BUILTIN_CLASSES)
+endif()
 
 set(LIB_HHEADERS
     ogr_s57.h
@@ -54,5 +57,13 @@ set(LIB_CSOURCES
     s57writer.cpp
 )
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+set(UTIL_SOURCES
+        s57dump.cpp
+        )
+
+include(MacroOptionalAddDriver)
+MACRO_OPTIONAL_ADD_DRIVER(S57 s57 ON)
+if(OGR_ENABLE_S57)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+endif()
