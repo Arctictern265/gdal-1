@@ -78,6 +78,29 @@ matrix:
           - ccache
       env:
         - BUILD_NAME=android
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-4.0
+            - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
+              key_url: 'http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc'
+          packages:
+            - clang-4.0
+            - software-properties-common
+            - python-software-properties
+          env:
+            - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+      language: cpp
+      compiler: clang
+      sudo: required
+      dist: trusty
+      cache:
+        apt: true
+        directories:
+          - $HOME/.ccache
+      env:
+        - BUILD_NAME=cmake
         - DETAILS=""
     - os: linux
       compiler: gcc
@@ -162,13 +185,4 @@ install:
 script:
   - ./gdal/ci/travis/${BUILD_NAME}/script.sh
 
-notifications:
-  email:
-    recipients:
-      - gdal-commits@lists.osgeo.org
 
-  irc:
-    channels:
-      - "irc.freenode.org#gdal"
-    use_notice: true
-    on_success: change
