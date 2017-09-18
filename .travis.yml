@@ -86,6 +86,7 @@ matrix:
             - sourceline: "ppa:openjdk-r/ppa"
             - sourceline: "ppa:ubuntugis/ubuntugis-unstable"
             - sourceline: "ppa:miurahr/gta"
+            - sourceline: "ppa:miurahr/fyba"
           packages:
             - clang-4.0
             - openjdk-8-jdk
