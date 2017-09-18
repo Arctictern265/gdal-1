@@ -83,10 +83,12 @@ matrix:
         apt:
           sources:
             - llvm-toolchain-trusty-4.0
+            - sourceline: "ppa:openjdk-r/ppa"
+            - sourceline: "ppa:ubuntugis/ubuntugis-unstable"
+            - sourceline: "ppa:miurahr/gta"
           packages:
             - clang-4.0
-            - software-properties-common
-            - python-software-properties
+            - openjdk-8-jdk
           env:
             - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
       language: cpp
@@ -99,7 +101,7 @@ matrix:
           - $HOME/.ccache
       env:
         - BUILD_NAME=cmake
-        - DETAILS=""
+        - DETAILS="Build with cmake and clang-4 on trusty"
     - os: linux
       compiler: gcc
       language: cpp
