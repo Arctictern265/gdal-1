@@ -32,6 +32,7 @@ sudo apt-get install -y --allow-unauthenticated python-numpy libpng12-dev libjpe
  libsfcgal-dev fossil libgeotiff-dev libcharls-dev libopenjp2-7-dev libcairo2-dev
 
 # cmake
+sudo apt-get remove -y cmake
 wget https://cmake.org/files/v3.9/cmake-3.9.2-Linux-x86_64.tar.gz
 tar xzf cmake-3.9.2-Linux-x86_64.tar.gz
 export PATH=$PATH:$PWD/cmake-3.9.2-Linux-x86_64/bin/

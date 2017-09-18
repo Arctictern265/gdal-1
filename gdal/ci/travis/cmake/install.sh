@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-export PATH=$PATH:$PWD/cmake-3.9.2-Linux-x86_64/bin/
+export PATH=$PWD/cmake-3.9.2-Linux-x86_64/bin/:$PATH
 
 mkdir cmake-gdal-debug
 cd cmake-gdal-debug
