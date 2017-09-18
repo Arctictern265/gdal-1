@@ -24,34 +24,31 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "ogrsf_mongodb")
+set(LIB_NAME "ogrsf_geomedia")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)    
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)
 
 set(LIB_HHEADERS
-    mongocxx_headers.h
+        ogr_geomedia.h
 )
 
 set(LIB_CSOURCES
-    ogrmongodbdriver.cpp
+        ogrgeomediadatasource.cpp
+        ogrgeomediadriver.cpp
+        ogrgeomedialayer.cpp
+        ogrgeomediaselectlayer.cpp
+        ogrgeomediatablelayer.cpp
 )
 
 include(MacroOptionalAddDriver)
-MACRO_OPTIONAL_ADD_DRIVER(MONGODB mongodb ON)
-if(OGR_ENABLE_MONGODB)
-    find_package(libmongocxx REQUIRED)
-    find_package(libbsoncxx REQUIRED)
-    if(MONGODB_FOUND)
-        include_directories(${LIBMONGOCXX_INCLUDE_DIR})
-        include_directories(${LIBBSONCXX_INCLUDE_DIR})
-        set(GDAL_HAVE_MONGODB ON CACHE INTERNAL "GDAL_HAVE_MONGODB")
-        set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-        add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
-    endif()
+MACRO_OPTIONAL_ADD_DRIVER(GEOMEDIA geomedia OFF)
+if(OGR_ENABLE_GEOMEDIA)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
 endif()
