@@ -101,8 +101,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libkml-dev",
     "swig",
     "libhdf4-dev",
-    "libhdf5-openmpi-dev",
-    "libpodofo-dev",
+    "libhdf5-dev",
     "poppler-utils",
     "libfreexl-dev",
     "unixodbc-dev",
@@ -122,6 +121,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "libsfcgal-dev",
     "librasterlite-dev",
     "couchdb",
+    "libmongo-client-dev",
     "make",
     "g++",
     "bison",
@@ -130,7 +130,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "texlive-latex-base",
     "vim",
     "ant",
-    "mono-mcs"
+    "mono-mcs",
+    "libjson-c-dev",
+    "libtiff5-dev"
   ];
 
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -138,8 +140,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   if Dir.glob("#{File.dirname(__FILE__)}/.vagrant/machines/default/*/id").empty?
-	  pkg_cmd = "sed -i 's#deb http://.*archive.ubuntu.com/ubuntu/#deb mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; "
-    pkg_cmd << 'echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty universe" > /etc/apt/sources.list.d/official-ubuntu-xenial-universe.list'
+	  pkg_cmd = "sed -i 's#deb http[s]?://.*archive.ubuntu.com/ubuntu/#deb mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; "
+    pkg_cmd << 'echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty universe" > /etc/apt/sources.list.d/official-ubuntu-trusty-universe.list; '
+    pkg_cmd << 'echo "deb [ arch=amd64 ] http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.4.list; '
 	  pkg_cmd << "apt-get update -qq; apt-get install -q -y python-software-properties; "
 
 	  if ppaRepos.length > 0

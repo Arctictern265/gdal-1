@@ -33,6 +33,7 @@ cpl_config.h
 /[Dd]ebug
 /[Rr]elease
 /x64
+/.vagrant
 /.vs
 /.vscode
 /.idea

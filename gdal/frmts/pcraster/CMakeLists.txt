@@ -47,6 +47,12 @@ set(LIB_CSOURCES
         pcrasterutil.cpp
 )
 
+option(GDAL_ENABLE_FRMT_PCRASTER_LIBCSF_INTERNAL "Set ON to build pcraster driver with internal libcdf" ON)
+if(GDAL_ENABLE_FRMT_PCRASTER_LIBCSF_INTERNAL)
+    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/pcraster/libcsf)
+    add_subdirectory(libcsf)
+endif()
+
 add_definitions(-DFRMT_pcraster)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

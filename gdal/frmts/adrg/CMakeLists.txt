@@ -31,6 +31,7 @@ set(LIB_NAME "frmts_adrg")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/iso8211)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 

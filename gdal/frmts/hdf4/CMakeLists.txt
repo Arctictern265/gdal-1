@@ -31,6 +31,8 @@ set(LIB_NAME "frmts_hdf4")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/hdf4/hdf-eos)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/pds)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
@@ -44,6 +46,8 @@ set(LIB_CSOURCES
         hdf4imagedataset.cpp
 )
 
+
+include_directories(/usr/include/hdf)
 add_definitions(-DFRMT_hdf4)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

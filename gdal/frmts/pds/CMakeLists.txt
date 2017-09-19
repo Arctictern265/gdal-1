@@ -35,6 +35,7 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/raw)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/vrt)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
 set(LIB_HHEADERS

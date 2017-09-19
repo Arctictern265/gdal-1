@@ -30,6 +30,7 @@ cmake_minimum_required (VERSION 3.8)
 set(LIB_NAME "frmts_idrisi")
 project ("lib${LIB_NAME}")
 
+include_directories(${GDAL_ROOT_SOURCE_DIR}/alg)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)

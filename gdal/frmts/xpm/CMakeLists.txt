@@ -31,6 +31,7 @@ set(LIB_NAME "frmts_xpm")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/mem)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 

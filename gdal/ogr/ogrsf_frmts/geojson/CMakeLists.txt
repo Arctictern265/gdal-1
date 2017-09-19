@@ -32,9 +32,9 @@ project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/apps)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)  
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)  
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libjson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 
 add_subdirectory(libjson)
 

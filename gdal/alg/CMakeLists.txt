@@ -24,12 +24,14 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "alg")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 
 find_package(GEOS)
 if(GEOS_FOUND)
@@ -74,7 +76,6 @@ set(LIB_CSOURCES
         contour.cpp
         delaunay.c
         gdal_crs.c
-        gdal_nrgcrs.c
         gdal_octave.cpp
         gdal_rpc.cpp
         gdal_tps.cpp
