@@ -34,6 +34,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
+include(cmake_utils)
+
 set(LIB_HHEADERS
 )
 
@@ -41,6 +43,9 @@ set(LIB_CSOURCES
         openjpegdataset.cpp
 )
 
+find_package(OpenJPEG REQUIRED)
+TRANSFORM_VERSION(NUM_OPENJPEG_VERSION ${OPENJPEG_VERSION})
+add_definitions(-DOPENJPEG_VERSION=${NUM_OPENJPEG_VERSION})
 add_definitions(-DFRMT_openjpeg)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

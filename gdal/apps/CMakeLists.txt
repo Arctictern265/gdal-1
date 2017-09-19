@@ -30,11 +30,11 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/alg/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/)
 
-option(GDAL_BUILD_APPS "Set ON to build apps" OFF)
+include(cmake_utils)
+
+option(GDAL_BUILD_APPS "Set ON to build apps" ON)
 if(GDAL_BUILD_APPS)
 
-	include(app)
-    
 #gdalinfo
 	set(GDALINFO_HHEADERS
         commonutils.h
@@ -155,8 +155,6 @@ endif(GDAL_BUILD_APPS)
 option(GDAL_BUILD_TESTAPPS "Set ON to build test apps" OFF)
 if(GDAL_BUILD_TESTAPPS)
 
-	include(app)
-    
 #test_ogrsf.cpp
 	set(TEST_OGRSF_HHEADERS
         commonutils.h
