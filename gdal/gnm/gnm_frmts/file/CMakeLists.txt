@@ -1,9 +1,8 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# * Author:   Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
-# * Copyright (C) 2012 Bishop
 # * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
@@ -27,45 +26,23 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "ogrsf_generic")
+set(LIB_NAME "gnm_frmts_file")
 project ("lib${LIB_NAME}")
 
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)  
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)  
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gnm)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gnm/gnm_frmts)
 
 set(LIB_HHEADERS
-        ogr_gensql.h
-		ogreditablelayer.h
-		ogremulatedtransaction.h
-		ogrmutexeddatasource.h
-		ogrmutexedlayer.h
-		ogrwarpedlayer.h
-    )
-
-set(LIB_CSOURCES
-        ogrsfdriverregistrar.cpp
-        ogrlayer.cpp
-        ogrdatasource.cpp
-        ogrsfdriver.cpp
-        ogrregisterall.cpp
-        ogr_gensql.cpp
-        ogr_attrind.cpp
-        ogr_miattrind.cpp
-        ogrwarpedlayer.cpp
-        ogrunionlayer.cpp
-        ogrlayerpool.cpp
-        ogrlayerdecorator.cpp
-		ogreditablelayer.cpp
-		ogremulatedtransaction.cpp
-        ogrmutexeddatasource.cpp
-        ogrmutexedlayer.cpp
+        gnmfile.h
 )
 
-if(GDAL_ENABLE_OGR)
-    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
+set(LIB_CSOURCES
+        gnmfiledriver.cpp
+        gnmfilenetwork.cpp
+)
 
-   install(FILES ${LIB_HHEADERS} DESTINATION include/gdal)
-endif()
-
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

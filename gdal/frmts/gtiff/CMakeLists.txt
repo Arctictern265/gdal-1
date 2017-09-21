@@ -95,9 +95,6 @@ set(LIB_CSOURCES
 	gt_jpeg_copy.cpp
 )
 
-# source_group("Header Files\\port" FILES ${LIB_HHEADERS})
-# source_group("Source Files\\port" FILES ${LIB_CSOURCES})
-
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})	
 add_definitions(-DFRMT_gtiff)

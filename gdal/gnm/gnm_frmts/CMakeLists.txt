@@ -24,5 +24,27 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.8)
 
+set(LIB_NAME "gnm_frmts")
+project ("lib${LIB_NAME}")
+
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gnm)
+
+set(LIB_HHEADERS
+        gnm_frmts.h
+)
+
+set(LIB_CSOURCES
+        gnmregisterall.cpp
+)
+
+add_definitions(-DGNMFILE_ENABLED -DGNMDB_ENABLED)
+add_subdirectory(file)
+add_subdirectory(db)
+
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

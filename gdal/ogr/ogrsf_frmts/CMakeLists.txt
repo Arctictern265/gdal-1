@@ -135,3 +135,7 @@ add_subdirectory(carto)
 add_subdirectory(libkml)
 add_subdirectory(mysql)
 # add_subdirectory(mongodb)
+
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS})
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

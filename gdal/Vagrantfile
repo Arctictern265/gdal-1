@@ -132,7 +132,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "ant",
     "mono-mcs",
     "libjson-c-dev",
-    "libtiff5-dev"
+    "libtiff5-dev",
+    "libopenjp2-7-dev"
   ];
 
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -156,7 +157,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     scripts = [
       "cmake.sh",
       "libkml.sh",
-      "openjpeg.sh",
       "gdal.sh",
       "postgis.sh"
     ];

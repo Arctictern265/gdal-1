@@ -104,6 +104,7 @@ set(LIB_HHEADERS ${LIB_INST_HEADERS}
     ogr_xerces_headers.h
 )
 
+
 set(LIB_CSOURCES
     gml2ogrgeometry.cpp
     ogr2gmlgeometry.cpp 
@@ -186,8 +187,6 @@ add_subdirectory(ogrsf_frmts)
 
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB})
 
 if(EXPAT_FOUND)
 	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${EXPAT_LIBRARIES})

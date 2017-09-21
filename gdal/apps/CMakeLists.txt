@@ -29,6 +29,7 @@ cmake_minimum_required (VERSION 3.8)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/alg/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/)
 
 include(cmake_utils)
 
@@ -152,8 +153,7 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 
 endif(GDAL_BUILD_APPS)
 
-option(GDAL_BUILD_TESTAPPS "Set ON to build test apps" OFF)
-if(GDAL_BUILD_TESTAPPS)
+if(GDAL_OGR_ENABLE)
 
 #test_ogrsf.cpp
 	set(TEST_OGRSF_HHEADERS
@@ -166,5 +166,4 @@ if(GDAL_BUILD_TESTAPPS)
 	)
 
 	apps_macro("test_ogrsf" "${TEST_OGRSF_CSOURCES}" "${TEST_OGRSF_HHEADERS}")
-
-endif(GDAL_BUILD_TESTAPPS)
+endif()

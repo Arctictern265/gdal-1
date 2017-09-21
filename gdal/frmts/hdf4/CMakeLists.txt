@@ -46,7 +46,7 @@ set(LIB_CSOURCES
         hdf4imagedataset.cpp
 )
 
-
+add_subdirectory(hdf-eos)
 include_directories(/usr/include/hdf)
 add_definitions(-DFRMT_hdf4)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

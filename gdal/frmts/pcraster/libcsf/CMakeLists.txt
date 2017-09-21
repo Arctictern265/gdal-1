@@ -1,7 +1,8 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author:   Hiroshi Miura <miurahr@linux.com>
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
 # * Copyright (C) 2017 Hiroshi Miura
 # * 
@@ -26,36 +27,91 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "gnm")
+set(LIB_NAME "frmts_pcraster_libcsf")
 project ("lib${LIB_NAME}")
 
-include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
-add_subdirectory(gnm_frmts)
-
-set(LIB_INST_HEADERS
-        gnm.h
-        gnm_api.h
-        gnmgraph.h
-)
-
-set(LIB_HHEADERS ${LIB_INST_HEADERS}
-        gnm_priv.h
+set(LIB_HHEADERS
+        csfattr.h
 )
 
 set(LIB_CSOURCES
-        gnmlayer.cpp
-        gnmgenericnetwork.cpp
-        gnmgraph.cpp
-        gnmnetwork.cpp
-        gnmresultlayer.cpp
-        gnmrule.cpp
+        _getcell.c
+        _getrow.c
+        _gsomece.c
+        _putcell.c
+        _rputrow.c
+        angle.c
+        attravai.c
+        attrsize.c
+        cellsize.c
+        create2.c
+        csfglob.c
+        csfsup.c
+        delattr.c
+        dumconv.c
+        endian.c
+        filename.c
+        gattrblk.c
+        gattridx.c
+        gcellrep.c
+        gdattype.c
+        getattr.c
+        getx0.c
+        gety0.c
+        ggisfid.c
+        gmaxval.c
+        gminval.c
+        gnrcols.c
+        gnrrows.c
+        gproj.c
+        gputproj.c
+        gvalscal.c
+        gvartype.c
+        gversion.c
+        ismv.c
+        kernlcsf.c
+        legend.c
+        mclose.c
+        mopen.c
+        moreattr.c
+        mperror.c
+        pgisfid.c
+        pmaxval.c
+        pminval.c
+        putallmv.c
+        putattr.c
+        putsomec.c
+        putx0.c
+        puty0.c
+        pvalscal.c
+        rattrblk.c
+        rcomp.c
+        rcoords.c
+        rdup2.c
+        reseterr.c
+        rextend.c
+        rmalloc.c
+        rrowcol.c
+        ruseas.c
+        setangle.c
+        setmv.c
+        setvtmv.c
+        strconst.c
+        strpad.c
+        swapio.c
+        trackmm.c
+        vs2.c
+        vsdef.c
+        vsis.c
+        vsvers.c
+        wattrblk.c
 )
 
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+add_definitions(-DUSE_IN_GDAL)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
-install(FILES ${LIB_INST_HEADERS} DESTINATION include/gdal)
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 

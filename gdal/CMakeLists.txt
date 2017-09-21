@@ -1,8 +1,7 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
-# *         Hiroshi Miura <miurahr@linux.com>
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru, Hiroshi Miura
 # ******************************************************************************
 # * Copyright (C) 2012,2013 Bishop
 # * Copyright (C) 2017 Hiroshi Miura
@@ -135,9 +134,9 @@ endforeach()
   
 option(GDAL_BUILD_SHARED "Set ON to build shared library" ON)
 if(GDAL_BUILD_SHARED)
-	add_library(${GDAL_LIB_NAME} SHARED ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})#${GDAL_HHEADERS} 
+	add_library(${GDAL_LIB_NAME} SHARED ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})
 else()
-	add_library(${GDAL_LIB_NAME} STATIC ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})#${GDAL_HHEADERS} 
+	add_library(${GDAL_LIB_NAME} STATIC ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})
 endif()
 
 configure_file(${CMAKE_MODULE_PATH}/gdal_def.cmake ${GDAL_ROOT_SOURCE_DIR}/gcore/gdal_def.h @ONLY)
@@ -146,21 +145,19 @@ list(REMOVE_DUPLICATES GDAL_TARGET_LINK_LIB)
 foreach(TL ${GDAL_TARGET_LINK_LIB})
 	message(STATUS "gdal target link lib=${TL}")
 endforeach()
+
 if(GDAL_TARGET_LINK_LIB)
 	target_link_libraries(${GDAL_LIB_NAME} ${GDAL_TARGET_LINK_LIB})
 endif()
  
-# if(PROJ_FOUND)
-    # target_link_libraries(${GDAL_LIB_NAME} ${PROJ_LIBRARY})
-# endif(PROJ_FOUND)
-
 set_target_properties(${GDAL_LIB_NAME}
 	PROPERTIES PROJECT_LABEL ${PROJECT_NAME}
     VERSION ${GDAL_VERSION}
     SOVERSION 1
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
 	
 
 if(WIN32)
@@ -186,4 +183,4 @@ endif()
     
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-#add_subdirectory(swig)
+add_subdirectory(swig)
