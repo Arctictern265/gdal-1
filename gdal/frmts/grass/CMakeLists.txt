@@ -2,8 +2,9 @@
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
-# * Copyright (C) 2012 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -26,36 +27,24 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "z")
+set(LIB_NAME "frmts_glass")
 project ("lib${LIB_NAME}")
 
-set(LIB_HHEADERS
-	crc32.h
-	deflate.h
-	inffast.h
-	inffixed.h
-	inflate.h
-	inftrees.h
-	trees.h
-	zconf.h
-	zlib.h
-	zutil.h
-)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
 set(LIB_CSOURCES
-	adler32.c
-	compress.c
-	crc32.c
-	deflate.c
-	gzio.c
-	infback.c
-	inffast.c
-	inflate.c
-	inftrees.c
-	trees.c
-	uncompr.c
-	zutil.c
+        grass57dataset.cpp
 )
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})	
+option(GDAL_ENABLE_FRMT_GRASS "Set ON to build GRASS driver" OFF)
+if(GDAL_ENABLE_FRMT_GRASS)
+    find_package(GRASS REQUIRED)
+    if(GRASS_FOUND)
+        include_directories(${GRASS_INCLUDE_DIR}${GRASS_FIND_VERSION})
+        add_definitions(-DGRASS_GISBASE=${GRASS_GISBASE} -DFRMT_glass)
+        set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+        add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
+    endif()
+endif()

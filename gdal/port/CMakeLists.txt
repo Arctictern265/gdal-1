@@ -29,7 +29,7 @@ cmake_minimum_required (VERSION 3.8)
 set(LIB_NAME "cpl")
 project ("lib${LIB_NAME}")
 
-include (cmake_utils)
+include (GdalUtils)
 
 #check Iconv
 option(GDAL_USE_ICONV "Set ON to use libiconv" ON)

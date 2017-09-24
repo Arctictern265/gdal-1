@@ -34,7 +34,7 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
-include(cmake_utils)
+include(GdalUtils)
 
 set(LIB_HHEADERS
 )

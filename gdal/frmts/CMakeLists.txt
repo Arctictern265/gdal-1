@@ -137,6 +137,14 @@ add_subdirectory(jpegls)
 add_subdirectory(bpg)
 add_subdirectory(dods)
 add_subdirectory(dds)
+add_subdirectory(kea)
+add_subdirectory(grass)
+add_subdirectory(zlib)
+
+# driver with proprietary libraries
+add_subdirectory(jp2kak)
+add_subdirectory(jpipkak)
+add_subdirectory(jp2lura)
 
 
 set(LIB_CSOURCES

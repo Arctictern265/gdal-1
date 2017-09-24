@@ -31,8 +31,7 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/alg/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/)
 
-include(cmake_utils)
-
+include(GdalUtils)
 option(GDAL_BUILD_APPS "Set ON to build apps" ON)
 if(GDAL_BUILD_APPS)
 

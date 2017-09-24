@@ -2,8 +2,9 @@
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# *         Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
-# * Copyright (C) 2012 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -26,36 +27,31 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "z")
+set(LIB_NAME "frmts_jp2kak")
 project ("lib${LIB_NAME}")
 
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+
 set(LIB_HHEADERS
-	crc32.h
-	deflate.h
-	inffast.h
-	inffixed.h
-	inflate.h
-	inftrees.h
-	trees.h
-	zconf.h
-	zlib.h
-	zutil.h
+        jp2kak_headers.h
+        jp2kakdataset.h
+        subfile_source.h
+        vsil_target.h
 )
 
 set(LIB_CSOURCES
-	adler32.c
-	compress.c
-	crc32.c
-	deflate.c
-	gzio.c
-	infback.c
-	inffast.c
-	inflate.c
-	inftrees.c
-	trees.c
-	uncompr.c
-	zutil.c
+        jp2kakdataset.cpp
 )
 
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})	
+MACRO_OPTIONAL_ADD_DRIVER(JP2KEK jp2kek OFF)
+if(OGR_ENABLE_JP2KEK)
+    set(KAKDIR ${KAKADU_DIRECTORY})
+    include_directories($(KAKDIR)/coresys/common;$(KAKDIR)/apps/compressed_io;
+	$(KAKDIR)/apps/jp2;$(KAKDIR)/apps/image;$(KAKDIR)/apps/args;
+	$(KAKDIR)/apps/support;$(KAKDIR)/apps/kdu_compress)
+    add_definitions(-DFRMT_jp2kak)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+endif()
