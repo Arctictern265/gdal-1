@@ -28,8 +28,13 @@ cmake_minimum_required (VERSION 3.8)
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/alg/)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/vrt)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/mem)
 
 include(GdalUtils)
 option(GDAL_BUILD_APPS "Set ON to build apps" ON)
@@ -41,7 +46,8 @@ if(GDAL_BUILD_APPS)
 	)
 
 	set(GDALINFO_CSOURCES
-		gdalinfo.c
+		gdalinfo_bin.cpp
+		gdalinfo_lib.cpp
 		commonutils.cpp
 	)
 
@@ -53,7 +59,8 @@ if(GDAL_BUILD_APPS)
 	)
 
 	set(gdalbuildvrt_CSOURCES
-		gdalbuildvrt.cpp
+        gdalbuildvrt_bin.cpp
+        gdalbuildvrt_lib.cpp
 	)
 
 	apps_macro("gdalbuildvrt" "${gdalbuildvrt_CSOURCES}" "${gdalbuildvrt_HHEADERS}")	
@@ -70,12 +77,12 @@ if(GDAL_BUILD_APPS)
     
 #gdal_grid   
     set(gdal_grid_HHEADERS
-#        gdalgrid.h
-        commonutils.h    
+        commonutils.h
     )
 
     set(gdal_grid_CSOURCES
-        gdal_grid.cpp
+        gdal_grid_bin.cpp
+		gdal_grid_lib.cpp
         commonutils.cpp
     )
 
@@ -88,7 +95,8 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 	)
 
 	set(gdal_translate_CSOURCES
-		gdal_translate.cpp
+        gdal_translate_bin.cpp
+        gdal_translate_lib.cpp
         commonutils.cpp
 	)
 
@@ -100,8 +108,9 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 	)
 
 	set(gdalwarp_CSOURCES
-		gdalwarp.cpp        
-        commonutils.cpp
+            gdalwarp_bin.cpp
+            gdalwarp_lib.cpp
+            commonutils.cpp
 	)
 
 	apps_macro("gdalwarp" "${gdalwarp_CSOURCES}" "${gdalwarp_HHEADERS}")  
@@ -145,7 +154,8 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 	)
 
 	set(ogr2ogr_CSOURCES
-		ogr2ogr.cpp
+        ogr2ogr_bin.cpp
+        ogr2ogr_lib.cpp
         commonutils.cpp
 	)
 	apps_macro("ogr2ogr" "${ogr2ogr_CSOURCES}" "${ogr2ogr_HHEADERS}")    

@@ -127,6 +127,8 @@ add_subdirectory(frmts)
 add_subdirectory(apps)
 add_subdirectory(gnm)
 
+add_subdirectory(swig)
+
 list(REMOVE_DUPLICATES GDAL_TARGET_OBJECTS)
 foreach(TO ${GDAL_TARGET_OBJECTS})
 	message(STATUS "gdal link=${TO}")
@@ -183,4 +185,3 @@ endif()
     
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-add_subdirectory(swig)

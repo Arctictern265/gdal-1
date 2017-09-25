@@ -57,6 +57,7 @@ if(GDAL_PAM_ENABLED)
 	add_definitions(-DPAM_ENABLED)
 endif(GDAL_PAM_ENABLED)
 
+include_directories(${GDAL_ROOT_SOURCE_DIR}/apps)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/vrt)
 
@@ -70,6 +71,7 @@ set(LIB_HHEADERS
         gvgcpfit.h
         thinplatespline.h
         gdal_simplesurf.h
+		gdalpansharpen.h
 )
 
 set(LIB_CSOURCES
@@ -79,18 +81,24 @@ set(LIB_CSOURCES
         gdal_octave.cpp
         gdal_rpc.cpp
         gdal_tps.cpp
+        gdalapplyverticalshiftgrid.cpp
         gdalchecksum.cpp
         gdalcutline.cpp
         gdaldither.cpp
         gdalgeoloc.cpp
         gdalgrid.cpp
+		gdalgridavx.cpp
+		gdalgridsse.cpp
+		gdalmatching.cpp
         gdalmediancut.cpp
+		gdalpansharpen.cpp
         gdalproximity.cpp
         gdalrasterize.cpp
         gdalrasterpolygonenumerator.cpp
         gdalsievefilter.cpp
         gdalsimplewarp.cpp
         gdaltransformer.cpp
+		gdaltransformgeolocs.cpp
         gdalwarper.cpp
         gdalwarpkernel.cpp
         gdalwarpoperation.cpp
@@ -112,7 +120,7 @@ if(OPENCL_FOUND)
 		gdalwarpkernel_opencl.h
 	)
 	
-	set(LIB_CSOURCES
+	set(LIB_CSOURCES ${LIB_CSOURCES}
 		gdalwarpkernel_opencl.cpp
 	)
 endif(OPENCL_FOUND)

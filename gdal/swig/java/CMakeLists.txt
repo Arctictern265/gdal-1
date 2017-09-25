@@ -5,7 +5,7 @@
 # *			Hiroshi Miura <miurahr@linux.com>
 # ******************************************************************************
 # * Copyright (C) 2017 Hiroshi Miura
-# * 
+# *
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
 # * to deal in the Software without restriction, including without limitation
@@ -27,43 +27,12 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-option(LANGUAGE_BINDINGS "Build binding to languages" ON)
-if(LANGUAGE_BINDINGS)
+include(MacroSwigBindings)
+MACRO_SWIG_BINDINGS(java)
 
-    option(LANGUAGE_BINDING_PYTHON "Build the Python binding" ON)
-    if(LANGUAGE_BINDING_PYTHON)
-        message(STATUS "Python support is added.")
-        add_subdirectory(python)
-    endif()
+#INCLUDE_DIRECTORIES( ${PYTHON_INCLUDE_PATH} ${GDAL_INCLUDE_DIR} )
+#SET_TARGET_PROPERTIES( gdal_python PROPERTIES PREFIX "" OUTPUT_NAME "gdal")
+#TARGET_LINK_LIBRARIES( gdal_python ${GDAL_LIBRARY} )
+#TARGET_LINK_LIBRARIES( gdal_python ${PYTHON_LIBRARY} )
+#INSTALL(TARGETS gdal_python LIBRARY DESTINATION ${PYTHON_VENDOR_ARCH_DIR})
 
-    option(LANGUAGE_BINDING_JAVA "Build the JAVA binding" OFF)
-    if(LANGUAGE_BINDING_JAVA)
-        message(STATUS "JAVA support is added.")
-        add_subdirectory(java)
-    endif()
-
-
-    option(LANGUAGE_BINDING_PERL "Build the Perl binding" OFF)
-    if(LANGUAGE_BINDING_PERL)
-        message(STATUS "Perl support is added.")
-    endif()
-
-
-    option(LANGUAGE_BINDING_PHP "Build the PHP binding" OFF)
-    if(LANGUAGE_BINDING_PHP)
-        message(STATUS "PHP support is added.")
-    endif()
-
-
-    option(LANGUAGE_BINDING_CSHARP "Build the C# binding" OFF)
-    if(LANGUAGE_BINDING_CSHARP)
-        message(STATUS "C# support is added.")
-    endif()
-
-
-    option(LANGUAGE_BINDING_RUBY "Build the Ruby binding" OFF)
-    if(LANGUAGE_BINDING_RUBY)
-        message(STATUS "Ruby support is added.")
-    endif()
-
-endif()
