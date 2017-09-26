@@ -49,6 +49,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 set(LIB_HHEADERS
     gdal_version.h
     gdal.h

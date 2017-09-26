@@ -36,6 +36,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/mem)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 include(GdalUtils)
 option(GDAL_BUILD_APPS "Set ON to build apps" ON)
 if(GDAL_BUILD_APPS)

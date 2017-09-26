@@ -36,6 +36,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gdal)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 # Builtin formats
 add_subdirectory(gxf)
 add_subdirectory(gtiff)

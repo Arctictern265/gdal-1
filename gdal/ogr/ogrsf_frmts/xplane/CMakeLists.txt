@@ -46,6 +46,7 @@ set(LIB_CSOURCES
         ogr_xplane_awy_reader.cpp
         ogr_xplane_fix_reader.cpp
         ogr_xplane_nav_reader.cpp
+        ogr_xplane_reader.cpp
         ogrxplanedatasource.cpp
         ogrxplanedriver.cpp
         ogrxplanelayer.cpp

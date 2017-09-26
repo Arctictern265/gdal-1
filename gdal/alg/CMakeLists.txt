@@ -33,6 +33,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 find_package(GEOS)
 if(GEOS_FOUND)
 	get_filename_component(GEOS_ROOT ${GEOS_INCLUDE_DIR} PATH)

@@ -33,6 +33,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 add_subdirectory(gnm_frmts)
 
 set(LIB_INST_HEADERS

@@ -41,6 +41,8 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/mem)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 find_package(GEOS)
 if(GEOS_FOUND)
 	get_filename_component(GEOS_ROOT ${GEOS_INCLUDE_DIR} PATH)
@@ -210,6 +212,7 @@ if(XercesC_FOUND)
 	include_directories(/usr/include/xercesc)
 	add_definitions(-DHAVE_XERCES)
 	set(GDAL_HAVE_XERCES ON CACHE INTERNAL "GDAL_HAVE_XERCES")
+	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${XercesC_LIBRARIES})
 endif()
 
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

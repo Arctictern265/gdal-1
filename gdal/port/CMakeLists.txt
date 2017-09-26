@@ -43,7 +43,7 @@ if(GDAL_USE_ICONV)
 endif(GDAL_USE_ICONV)
 
 if(MSVC)
-    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.vc.cmake ${GDAL_ROOT_SOURCE_DIR}/port/cpl_config.h @ONLY)
+    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.vc.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
 else(MSVC)
 
     # Include all the necessary files for macros
@@ -223,8 +223,9 @@ else(MSVC)
 	message(STATUS "cpl_config.h is configured")
 endif(MSVC)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port/)
 set(LIB_HHEADERS
-	cpl_config.h
+    cpl_config.h
     cplkeywordparser.h
     cpl_atomic_ops.h
     cpl_config_extras.h
