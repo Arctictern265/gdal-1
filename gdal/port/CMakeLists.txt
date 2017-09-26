@@ -218,13 +218,13 @@ else(MSVC)
       set(STDC_HEADERS TRUE)
     endif (HAVE_STDDEF_H AND HAVE_STDINT_H)
 	
-    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_SOURCE_DIR}/port/cpl_config.h @ONLY)
+    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
 
 	message(STATUS "cpl_config.h is configured")
 endif(MSVC)
 
 set(LIB_HHEADERS
-	cpl_config.h 
+	cpl_config.h
     cplkeywordparser.h
     cpl_atomic_ops.h
     cpl_config_extras.h

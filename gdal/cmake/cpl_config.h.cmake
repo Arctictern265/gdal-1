@@ -1,10 +1,22 @@
-/* port/cpl_config.h.in.  Generated from configure.in by autoheader.  */
+/* delived from port/cpl_config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define if you want to use pthreads based multiprocessing support */
 //#cmakedefine CPL_MULTIPROC_PTHREAD
 
 /* Define to 1 if you have the `PTHREAD_MUTEX_RECURSIVE' constant. */
 //#cmakedefine01 HAVE_PTHREAD_MUTEX_RECURSIVE
+
+/* Define to 1 if you have the `PTHREAD_MUTEX_ADAPTIVE_NP' constant. */
+//#cmakedefine01 HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
+
+/* Define to 1 if you have the `pthread_spinlock_t' type. */
+//#cmakedefine01 HAVE_PTHREAD_SPINLOCK
+
+/* Define to 1 if you have the 5 args `mremap' function. */
+#cmakedefine01 HAVE_5ARGS_MREMAP
+
+/* --prefix directory for GDAL install */
+//#cmakedefine GDAL_PREFIX
 
 /* Define to 1 if you have the <assert.h> header file. */
 #cmakedefine01 HAVE_ASSERT_H
@@ -59,6 +71,9 @@
 /* Define to 1 if the system has the type `int8'. */
 #cmakedefine01 HAVE_INT8
 
+/* Define to 1 if the system has the type `__uint128_t'. */
+#cmakedefine01 HAVE_UINT128_T
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine01 HAVE_INTTYPES_H
 
@@ -85,6 +100,9 @@
 
 /* Define to 1, if your compiler supports long long data type */
 #cmakedefine01 HAVE_LONG_LONG
+
+/* Define to 1, if your compiler supports uintptr_t data type */
+#cmakedefine01 HAVE_UINTPTR_T
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine01 HAVE_MEMORY_H
@@ -131,6 +149,27 @@
 /* Define to 1 if you have the `readlink' function. */
 #cmakedefine01 HAVE_READLINK
 
+/* Define to 1 if you have the `posix_spawnp' function. */
+#cmakedefine01 HAVE_POSIX_SPAWNP
+
+/* Define to 1 if you have the `posix_memalign' function. */
+#cmakedefine01 HAVE_POSIX_MEMALIGN
+
+/* Define to 1 if you have the `vfork' function. */
+#cmakedefine01 HAVE_VFORK
+
+/* Define to 1 if you have the `mmap' function. */
+#cmakedefine01 HAVE_MMAP
+
+/* Define to 1 if you have the statvfs' function. */
+#cmakedefine01 HAVE_STATVFS
+
+/* Define to 1 if you have the `statvfs64' function. */
+#cmakedefine01 HAVE_STATVFS64
+
+/* Define to 1 if you have the `lstat' function. */
+#cmakedefine01 HAVE_LSTAT
+
 /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
 #define HOST_FILLORDER @HOST_FILLORDER@
 
@@ -140,9 +179,12 @@
 /* For .cpp files, define as const if the declaration of iconv() needs const. */
 //#undef ICONV_CPP_CONST
 
+/* Define to 1 if libjvm.so should be dlopen'd */
+#cmakedefine01 JVM_LIB_DLOPEN
+
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-#define LT_OBJDIR "@LT_OBJDIR@"
+//#define LT_OBJDIR "@LT_OBJDIR@"
 
 /* Define for Mac OSX Framework build */
 #cmakedefine MACOSX_FRAMEWORK
@@ -170,6 +212,9 @@
 
 /* Define to 1 if GCC atomic builtins are available */
 //#undef HAVE_GCC_ATOMIC_BUILTINS
+
+/* Define to 1 if GCC bswap builtins are available */
+#cmakedefine01 HAVE_GCC_BSWAP
 
 /* Define to name of 64bit fopen function */
 #define VSI_FOPEN64 @VSI_FOPEN64@
@@ -199,8 +244,20 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine01 WORDS_BIGENDIAN
 
+/* Define to 1 if you have the `getaddrinfo' function. */
+#cmakedefine01 HAVE_GETADDRINFO
+
+/* Define to 1 if you have the _SC_PHYS_PAGES' constant. */
+#cmakedefine01 HAVE_SC_PHYS_PAGES
+
+/* Define to 1 if you have the `uselocale' function. */
+#cmakedefine01 HAVE_USELOCALE
+
+/* Define to 1 if you have the `std::isnan' function. */
+#cmakedefine01 HAVE_STD_IS_NAN
+
 /* Use this file to override settings in instances where you're doing FAT compiles
-   on Apple.  It is currently off by default because it doesn't seem to work with 
-   newish ( XCode >= 3/28/11) XCodes */
+   on Apple.  It is currently off by default because it doesn't seem to work with
+   XCode >= 3/28/11 */
 /* #include "cpl_config_extras.h" */
 @CPL_CONFIG_EXTRAS@
