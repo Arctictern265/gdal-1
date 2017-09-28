@@ -41,7 +41,11 @@ set(LIB_CSOURCES
         ogdidataset.cpp
 )
 
-include_directories(/usr/include/ogdi)
+find_package(OGDI REQUIRED)
+find_package(PROJ REQUIRED)
+include_directories(${OGDI_INCLUDE_DIR})
+include_directories(${PROJ_INCLUDE_DIR})
 add_definitions(-DFRMT_ogdi)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${OGDI_LIBRARY} ${PROJ_LIBRARIES} PARENT_SCOPE)
