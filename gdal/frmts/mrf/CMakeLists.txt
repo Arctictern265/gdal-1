@@ -43,7 +43,16 @@ set(LIB_CSOURCES
         mrf_band.cpp
         mrf_overview.cpp
         mrf_util.cpp
+
+        JPEG12_band.cpp
+        JPEG_band.cpp
+        JPNG_band.cpp
+        PNG_band.cpp
+        Raw_band.cpp
+        Tif_band.cpp
 )
+
+add_subdirectory(libLERC)
 
 add_definitions(-DFRMT_mrf)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
