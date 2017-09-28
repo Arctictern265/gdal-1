@@ -38,10 +38,12 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
 set(LIB_HHEADERS
         mgrs.h
+        nitflib.h
         nitfdataset.h
 )
 
 set(LIB_CSOURCES
+        mgrs.c
         nitfdataset.cpp
         rpftocdataset.cpp
         nitfwritejpeg.cpp
