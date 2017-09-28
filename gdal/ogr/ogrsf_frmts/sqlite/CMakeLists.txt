@@ -35,6 +35,12 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 
 set(LIB_HHEADERS
     ogr_sqlite.h
+    ogrsqlite3ext.h
+    ogrsqliteexecutesql.h
+    ogrsqlitesqlfunctions.h
+    ogrsqlitevirtualogr.h
+    rasterlite2_header.h
+    ogrsqliteutility.h
 )
 
 set(LIB_CSOURCES
@@ -46,6 +52,13 @@ set(LIB_CSOURCES
 	ogrsqlitetablelayer.cpp
 	ogrsqlitevfs.cpp
 	ogrsqliteviewlayer.cpp
+    ogrsqliteexecutesql.cpp
+    ## ogrsqliteregexp.cpp # should not compile directly. see comment in source.
+    ## ogrsqlitesqlfunctions.cpp # should not compile directly. see comment in source.
+    ogrsqlitevirtualogr.cpp
+    rasterlite2.cpp
+    ogrsqliteutility.cpp
+    ogrsqliteapiroutines.c
 )
 
 include(MacroOptionalAddDriver)
@@ -64,6 +77,7 @@ if(OGR_ENABLE_SQLITE)
     add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 
     if(SQLITE3_FOUND)
-        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${SQLITE3_LIBRARY} PARENT_SCOPE)
+        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${SQLITE3_LIBRARY})
     endif(SQLITE3_FOUND)
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
 endif()
