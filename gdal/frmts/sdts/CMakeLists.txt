@@ -40,7 +40,7 @@ set(LIB_HHEADERS
         sdts_al.h
 )
 
-set(SDTSLIB_SOURCES
+set(SDTSLIB_CSOURCES
         sdtsiref.cpp
         sdtscatd.cpp
         sdtslinereader.cpp
@@ -64,4 +64,4 @@ set(LIB_CSOURCES
 
 add_definitions(-DFRMT_sdts)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${SDTSLIB_SOURCE} ${LIB_CSOURCES})
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${SDTSLIB_CSOURCES} ${LIB_CSOURCES})
