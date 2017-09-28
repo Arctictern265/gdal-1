@@ -30,8 +30,6 @@ cmake_minimum_required (VERSION 3.8)
 set(LIB_NAME "frmts_hdf4_eos")
 project ("lib${LIB_NAME}")
 
-include_directories(/usr/include/hdf)
-
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/hdf4)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
@@ -50,6 +48,15 @@ set(LIB_CSOURCES
         SWapi.c
 )
 
+## FIXME
+# replace with find_package(HDF4 REQUIRED)
+set(HDF4_INCLUDE_DIRS /usr/include/hdf )
+set(HDF4_LIBRARIES /usr/lib/libdfalt.so )
+##
+
 add_definitions(-DFRMT_hdf4)
+include_directories(${HDF4_INCLUDE_DIRS})
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${HDF4_LIBRARIES})
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
