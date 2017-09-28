@@ -25,6 +25,8 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
+## FIXME this is imcomplete work now.
+
 cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts_hdf4")

@@ -112,7 +112,6 @@ add_subdirectory(bsb)
 add_subdirectory(openjpeg)
 add_subdirectory(jpeg2000)
 add_subdirectory(netcdf)
-add_subdirectory(hdf4)
 add_subdirectory(hdf5)
 add_subdirectory(ogdi)
 add_subdirectory(gif)
@@ -122,6 +121,9 @@ add_subdirectory(png)
 add_subdirectory(pcraster)
 add_subdirectory(fits)
 add_subdirectory(arg)
+
+## FIXME: temporary disables incomplete hdf4 driver cmake recipe
+#add_subdirectory(hdf4)
 
 # OPTIONAL Formats
 #
