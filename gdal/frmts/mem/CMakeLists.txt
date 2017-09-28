@@ -43,9 +43,6 @@ set(LIB_CSOURCES
 	memdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_MEM "Set ON to build memory raster driver" OFF)
-if(GDAL_ENABLE_FRMT_MEM)
-	add_definitions(-DFRMT_mem)
-	set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-	add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-endif()
+add_definitions(-DFRMT_mem)
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
