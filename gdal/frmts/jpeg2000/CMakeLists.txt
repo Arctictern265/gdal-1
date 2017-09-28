@@ -43,6 +43,22 @@ set(LIB_CSOURCES
         jpeg2000dataset.cpp
 )
 
-add_definitions(-DFRMT_jpeg2000)
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+find_package(Jasper REQUIRED)
+if(JASPER_FOUND)
+    # Detect GeoJP2 UUID hack
+    include(CheckCSourceCompiles)
+    set(CMAKE_REQUIRED_QUIET "yes")
+    set(CMAKE_REQUIRED_LIBRARIES jasper)
+    CHECK_C_SOURCE_COMPILES("#ifdef __cplusplus\nextern \"C\"\n#endif\n char jp2_encode_uuid ();int main () {return jp2_encode_uuid ();;return 0;}" HAVE_JASPER_UUID)
+    if(HAVE_JASPER_UUID)
+        message(STATUS "GeoJP2=${HAVE_JASPER_UUID}")
+        add_definitions(-DHAVE_JASPER_UUID)
+    endif()
+
+    add_definitions(-DFRMT_jpeg2000)
+    include_directories(${JASPER_INCLUDE_DIR})
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JASPER_LIBRARIES})
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+endif()
