@@ -38,19 +38,36 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/mem)
 
 include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 
+set(LIB_NAME "gdal_apps")
+
+set(LIB_HHEADERS
+    commonutils.h
+)
+
+set(LIB_CSOURCES
+    gdalinfo_lib.cpp
+    gdalbuildvrt_lib.cpp
+    gdal_grid_lib.cpp
+    gdal_translate_lib.cpp
+    gdalwarp_lib.cpp
+    commonutils.cpp
+    ogr2ogr_lib.cpp
+)
+
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+
 include(GdalUtils)
 option(GDAL_BUILD_APPS "Set ON to build apps" ON)
 if(GDAL_BUILD_APPS)
 
 #gdalinfo
 	set(GDALINFO_HHEADERS
-        commonutils.h
+        gdal_utils_priv.h
 	)
 
 	set(GDALINFO_CSOURCES
 		gdalinfo_bin.cpp
-		gdalinfo_lib.cpp
-		commonutils.cpp
 	)
 
 	apps_macro("gdalinfo" "${GDALINFO_CSOURCES}" "${GDALINFO_HHEADERS}")
@@ -58,17 +75,18 @@ if(GDAL_BUILD_APPS)
     	
 #gdalbuildvrt    
 	set(gdalbuildvrt_HHEADERS
+        gdal_utils_priv.h
 	)
 
 	set(gdalbuildvrt_CSOURCES
         gdalbuildvrt_bin.cpp
-        gdalbuildvrt_lib.cpp
 	)
 
 	apps_macro("gdalbuildvrt" "${gdalbuildvrt_CSOURCES}" "${gdalbuildvrt_HHEADERS}")	
 	
 #gdaladdo    
 	set(GDALADDO_HHEADERS
+        gdal_utils_priv.h
 	)
 
 	set(GDALADDO_CSOURCES
@@ -79,13 +97,12 @@ if(GDAL_BUILD_APPS)
     
 #gdal_grid   
     set(gdal_grid_HHEADERS
+        gdal_utils_priv.h
         commonutils.h
     )
 
     set(gdal_grid_CSOURCES
         gdal_grid_bin.cpp
-		gdal_grid_lib.cpp
-        commonutils.cpp
     )
 
 apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
@@ -93,13 +110,12 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 #gdal_translate    
 	include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/)
 	set(gdal_translate_HHEADERS
+        gdal_utils_priv.h
         commonutils.h
 	)
 
 	set(gdal_translate_CSOURCES
         gdal_translate_bin.cpp
-        gdal_translate_lib.cpp
-        commonutils.cpp
 	)
 
 	apps_macro("gdal_translate" "${gdal_translate_CSOURCES}" "${gdal_translate_HHEADERS}")    
@@ -110,9 +126,7 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 	)
 
 	set(gdalwarp_CSOURCES
-            gdalwarp_bin.cpp
-            gdalwarp_lib.cpp
-            commonutils.cpp
+        gdalwarp_bin.cpp
 	)
 
 	apps_macro("gdalwarp" "${gdalwarp_CSOURCES}" "${gdalwarp_HHEADERS}")  
@@ -124,7 +138,6 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 
 	set(gdal_contour_CSOURCES
 		gdal_contour.cpp
-		commonutils.cpp
 	)
 
 	apps_macro("gdal_contour" "${gdal_contour_CSOURCES}" "${gdal_contour_HHEADERS}") 
@@ -147,7 +160,6 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 
 	set(ogrinfo_CSOURCES
 		ogrinfo.cpp
-		commonutils.cpp
 	)
 	apps_macro("ogrinfo" "${ogrinfo_CSOURCES}" "${ogrinfo_HHEADERS}")
     
@@ -157,8 +169,6 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 
 	set(ogr2ogr_CSOURCES
         ogr2ogr_bin.cpp
-        ogr2ogr_lib.cpp
-        commonutils.cpp
 	)
 	apps_macro("ogr2ogr" "${ogr2ogr_CSOURCES}" "${ogr2ogr_HHEADERS}")    
 
@@ -173,7 +183,6 @@ if(GDAL_OGR_ENABLE)
 
 	set(TEST_OGRSF_CSOURCES
 		test_ogrsf.cpp
-        commonutils.cpp
 	)
 
 	apps_macro("test_ogrsf" "${TEST_OGRSF_CSOURCES}" "${TEST_OGRSF_HHEADERS}")
