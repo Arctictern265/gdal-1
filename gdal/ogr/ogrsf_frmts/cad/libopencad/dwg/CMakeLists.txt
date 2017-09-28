@@ -24,7 +24,14 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required (VERSION 3.8)
+
+set(LIB_NAME "ogrsf_cad_libopencad_dwg")
+project ("lib${LIB_NAME}")
+
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/cad/libopencad)
 
 set(LIB_HHEADERS
         io.h
@@ -35,3 +42,7 @@ set(LIB_CSOURCES
         io.cpp
         r2000.cpp
 )
+
+set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)

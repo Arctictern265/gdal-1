@@ -33,7 +33,6 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/cad/libopencad)
 
-
 set(LIB_HHEADERS
         ogr_cad.h
         vsilfileio.h
@@ -46,11 +45,10 @@ set(LIB_CSOURCES
         gdalcaddataset.cpp
 )
 
-add_subdirectory(libopencad)
-
 include(MacroOptionalAddDriver)
 MACRO_OPTIONAL_ADD_DRIVER(CAD cad ON)
 if(OGR_ENABLE_CAD)
+    add_subdirectory(libopencad)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
     add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 
