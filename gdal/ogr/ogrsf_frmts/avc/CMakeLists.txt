@@ -33,14 +33,18 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)    
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/shape)
 
-set(LIB_HHEADERS
-    avc.h
-    avc_mbyte.h
-    ogr_avc.h
+set(AVCLIB_HHEADERS
+        avc.h
+        avc_mbyte.h
 )
 
-set(LIB_CSOURCES
-    avc_bin.c
+set(LIB_HHEADERS ${AVCLIB_HHEADERS}
+        ogr_avc.h
+)
+
+set(AVCLIB_CSOURCES
+        avc_bin.c
+        avc_rawbin.c
         avc_binwr.c
         avc_e00gen.c
         avc_e00parse.c
@@ -49,6 +53,18 @@ set(LIB_CSOURCES
         avc_mbyte.c
         avc_misc.c
 )
+
+set(LIB_CSOURCES ${AVCLIB_CSOURCES}
+        ogravcbindatasource.cpp
+        ogravcbindriver.cpp
+        ogravcbinlayer.cpp
+        ogravce00datasource.cpp
+        ogravcdatasource.cpp
+        ogravce00driver.cpp
+        ogravce00layer.cpp
+        ogravclayer.cpp
+)
+
 include(MacroOptionalAddDriver)
 MACRO_OPTIONAL_ADD_DRIVER(AVC avc ON)
 if(OGR_ENABLE_AVC)
