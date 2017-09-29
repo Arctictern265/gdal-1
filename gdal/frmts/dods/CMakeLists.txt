@@ -46,9 +46,7 @@ option(GDAL_ENABLE_FRMT_DODS "Set ON to build dods driver" OFF)
 if(GDAL_ENABLE_FRMT_DODS)
 	find_package(DAP REQUIRED)
     if(DAP_FOUND)
-        include_directories(${DAP_INCLUDE_DIRS})
-        set(LIBS ${LIBS} ${DAP_LIBRARIES})
-
+        include_directories(${DAP_INCLUDE_DIR})
         add_definitions(-DFRMT_dods)
 
         set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${DAP_LIBRARY})
