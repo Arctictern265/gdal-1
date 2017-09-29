@@ -27,68 +27,38 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-set(LIB_NAME "frmts_mrf")
+set(LIB_NAME "frmts_mrf_libLERC")
 project ("lib${LIB_NAME}")
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
-include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/port)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+
 set(LIB_HHEADERS
-        marfa.h
+        BitMask.h
+        BitMask2.h
+        BitStuffer.h
+        BitStuffer2.h
+        Defines.h
+        Huffman.h
+        Image.h
+        Lerc2.h
+        RLE.h
+        TImage.hpp
 )
 
 set(LIB_CSOURCES
-        marfa_dataset.cpp
-        mrf_band.cpp
-        mrf_overview.cpp
-        mrf_util.cpp
-
-        JPEG_band.cpp
-        JPNG_band.cpp
-        PNG_band.cpp
-        Raw_band.cpp
-        Tif_band.cpp
+        BitMask.cpp
+        BitMask2.cpp
+        BitStuffer.cpp
+        BitStuffer2.cpp
+        CntZImage.cpp
+        Huffman.cpp
+        Lerc2.cpp
+        RLE.cpp
 )
 
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB})
-
-if(GDAL_JPEG12_SUPPORTED)
-    set(LIB_CSOURCES ${LIB_CSOURCES} JPEG12_band.cpp)
-    add_definitions(-DJPEG12_SUPPORTED)
-endif()
-
-if(GDAL_USE_LIBJPEG_INTERNNAL)
-    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/jpeg/libjpeg)
-else()
-    find_package(JPEG)
-    if(JPEG_FOUND)
-        include_directories(${JPEG_INCLUDE_DIR})
-        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JPEG_LIBRARIES})
-    endif()
-endif()
-
-if(GDAL_USE_LIBPNG_INTERNNAL)
-    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/png/libpng)
-    add_definitions(-DINTERNAL_PNG)
-else()
-    find_package(PNG)
-    if(PNG_FOUND)
-        include_directories(${PNG_INCLUDE_DIR})
-        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${PNG_LIBRARIES})
-    endif()
-endif()
-
-if(GDAL_USE_LIBZ_INTERNNAL)
-    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/zlib)
-endif()
-
-add_subdirectory(libLERC)
-add_definitions(-DLERC)
-include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/mrf/libLERC)
-set(LIB_CSOURCES ${LIB_CSOURCES} LERC_band.cpp)
-
-add_definitions(-DFRMT_mrf)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
