@@ -1,7 +1,7 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru, Hiroshi Miura
 # ******************************************************************************
 # * Copyright (C) 2012 Bishop
 # * Copyright (C) 2017 Hiroshi Miura
@@ -71,9 +71,15 @@ else(GDAL_USE_LIBJPEG_INTERNAL)
 	endif(JPEG_FOUND) 
 endif(GDAL_USE_LIBJPEG_INTERNAL)
 
-include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libgeotiff)    
-add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libgeotiff ${GDAL_ROOT_BINARY_DIR}/frmts/gtiff/libgeotiff)	
-	
+option(GDAL_LIBGEOTIFF_INTERNAL "Set ON to use internal libgeotiff" ON)
+if(GDAL_LIBGEOTIFF_INTERNAL)
+    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libgeotiff)
+    add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libgeotiff ${GDAL_ROOT_BINARY_DIR}/frmts/gtiff/libgeotiff)
+    add_definitions(-DINTERNAL_LIBGEOTIFF)
+else()
+    #find_package(LIBGEOTIFF REQUIRED)
+endif()
+
 set(LIB_HHEADERS
 	gtiff.h
 	gt_citation.h

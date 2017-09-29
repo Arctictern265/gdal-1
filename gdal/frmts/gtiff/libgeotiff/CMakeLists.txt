@@ -36,40 +36,51 @@ else(GDAL_USE_LIBTIFF_INTERNAL)
 endif(GDAL_USE_LIBTIFF_INTERNAL)
 
 set(LIB_HHEADERS
-    cpl_serv.h
-    gdal_libgeotiff_symbol_rename.h
-    geo_config.h
-    geo_keyp.h
-    geo_normalize.h
-    geo_simpletags.h
-    geo_tiffp.h
-    geokeys.h
-    geonames.h
-    geotiff.h
-    geotiffio.h
-    geovalues.h
-    xtiffio.h
+        cpl_serv.h
+        gdal_libgeotiff_symbol_rename.h
+        geo_config.h
+        geo_keyp.h
+        geo_normalize.h
+        geo_simpletags.h
+        geo_tiffp.h
+        geokeys.h
+        geonames.h
+        geotiff.h
+        geotiffio.h
+        geovalues.h
+        xtiffio.h
 )
 
 set(LIB_CSOURCES
-	xtiff.c
-	geo_free.c
-	geo_get.c
-	geo_names.c
-	geo_new.c
-	geo_print.c
-	geo_set.c
-	geo_tiffp.c
-	geo_write.c
-	geo_normalize.c
-	geotiff_proj4.c
-	geo_extra.c
-	geo_trans.c
-	geo_simpletags.c
+        xtiff.c
+        geo_free.c
+        geo_get.c
+        geo_names.c
+        geo_new.c
+        geo_print.c
+        geo_set.c
+        geo_tiffp.c
+        geo_write.c
+        geo_normalize.c
+        geotiff_proj4.c
+        geo_extra.c
+        geo_trans.c
+        geo_simpletags.c
 )
 
 # source_group("Header Files\\port" FILES ${LIB_HHEADERS})
 # source_group("Source Files\\port" FILES ${LIB_CSOURCES})
 
+add_definitions(-DDONT_DEPRECATE_SPRINTF)
+if(GDAL_USE_LIBTIFF_INTERNAL)
+    include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff)
+    if(RENAME_INTERNAL_LIBTIFF_SYMBOLS)
+        add_definitions(-DRENAME_INTERNAL_LIBTIFF_SYMBOLS)
+    endif()
+endif()
+if(RENAME_INTERNAL_LIBGEOTIFF_SYMBOLS)
+    add_definitions(-DRENAME_INTERNAL_LIBGEOTIFF_SYMBOLS)
+endif()
+
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})	#${LIB_HHEADERS} 
+add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES} ${LIB_HHEADERS})
