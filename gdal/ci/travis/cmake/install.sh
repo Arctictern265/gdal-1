@@ -20,7 +20,7 @@ cmake \
 cmake --build . -- USER_DEFS=-Werror -j3
 
 sudo rm -f /usr/lib/libgdal.so*
-sudo cmake --build . --target install
+sudo $CMAKE_ROOT/bin/cmake --build . --target install
 sudo ldconfig
 
 cd ../autotest/cpp && make -j3

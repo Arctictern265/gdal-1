@@ -35,7 +35,13 @@ sudo apt-get install -y --allow-unauthenticated python-numpy libpng12-dev libjpe
 sudo apt-get remove -y cmake
 wget https://cmake.org/files/v3.9/cmake-3.9.2-Linux-x86_64.tar.gz
 tar xzf cmake-3.9.2-Linux-x86_64.tar.gz
-export PATH=$PATH:$PWD/cmake-3.9.2-Linux-x86_64/bin/
+export CMAKE_ROOT=$PWD/cmake-3.9.2-Linux-x86_64
+export PATH=$CMAKE_ROOT/bin:$PATH
+sudo ln -s $CMAKE_ROOT/bin/cmake /usr/bin/cmake
+sudo ln -s $CMAKE_ROOT/bin/ctest /usr/bin/ctest
+sudo ln -s $CMAKE_ROOT/bin/cpack /usr/bin/cpack
+sudo ln -s $CMAKE_ROOT/bin/ccmake /usr/bin/ccmake
+sudo ln -s $CMAKE_ROOT/bin/cmake-gui /usr/bin/cmake-gui
 
 wget http://s3.amazonaws.com/etc-data.koordinates.com/gdal-travisci/FileGDB_API_1_2-64.tar.gz
 wget http://s3.amazonaws.com/etc-data.koordinates.com/gdal-travisci/MrSID_DSDK-8.5.0.3422-linux.x86-64.gcc44.tar.gz
