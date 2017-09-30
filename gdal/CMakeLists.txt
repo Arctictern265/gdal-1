@@ -91,6 +91,8 @@ add_definitions(-DSTRICT -DHAVE_SSE_AT_COMPILE_TIME)
 
 if(UNIX)
     add_definitions(-DCPL_LSB)
+    add_definitions(-D_FORTIFY_SOURCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if(MSVC)
@@ -98,13 +100,6 @@ if(MSVC)
         set_target_properties(${GDAL_LIB_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
         add_definitions(-D_WIN64)
     endif(CMAKE_CL_64)
-endif()
-
-if(UNIX)
-     if(CMAKE_COMPILER_IS_GNUCXX OR CV_ICC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fno-strict-aliasing")#-Wextra -Wall -W -pthread -O2 -fno-strict-aliasing -pthrea
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fno-strict-aliasing -D_FORTIFY_SOURCE")
-     endif()
 endif()
 
 option(GDAL_USE_CPL "Set ON to use cpl" ON)
