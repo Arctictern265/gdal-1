@@ -52,6 +52,7 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/generic)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson/libjson)
 
+include_directories(${GDAL_ROOT_BINARY_DIR}/gcore)
 include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 
 set(LIB_HHEADERS
@@ -67,7 +68,7 @@ set(LIB_HHEADERS
         gdalgeorefpamdataset.h
         gdal_priv_templates.hpp
         gdal_avx2_emulation.hpp
-        gdal_def.h
+        #gdal_def.h
         gdal_mdreader.h
         gdal_pam.h
         gdalsse_priv.h

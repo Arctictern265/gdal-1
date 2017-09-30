@@ -110,6 +110,8 @@ if(GDAL_ENABLE_OGR)
 endif()
 
 include_directories(${GDAL_ROOT_SOURCE_DIR}/port)
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
+include_directories(${GDAL_ROOT_BINARY_DIR}/gcore)
 
 set(GDAL_TARGET_OBJECTS "")
 set(GDAL_TARGET_LINK_LIB "")
@@ -138,7 +140,7 @@ else()
 	add_library(${GDAL_LIB_NAME} STATIC ${GDAL_CSOURCES} ${GDAL_TARGET_OBJECTS})
 endif()
 
-configure_file(${CMAKE_MODULE_PATH}/gdal_def.cmake ${GDAL_ROOT_SOURCE_DIR}/gcore/gdal_def.h @ONLY)
+configure_file(${CMAKE_MODULE_PATH}/gdal_def.cmake ${GDAL_ROOT_BINARY_DIR}/gcore/gdal_def.h @ONLY)
 
 list(REMOVE_DUPLICATES GDAL_TARGET_LINK_LIB)
 foreach(TL ${GDAL_TARGET_LINK_LIB})
@@ -170,13 +172,13 @@ if(WIN32)
 			ARCHIVE DESTINATION lib/x86
 			LIBRARY DESTINATION lib/x86)
     endif()
-	install(FILES ${GDAL_ROOT_SOURCE_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
 else(WIN32)
     install(TARGETS ${GDAL_LIB_NAME}
         RUNTIME DESTINATION bin
         ARCHIVE DESTINATION lib/gdal
         LIBRARY DESTINATION lib/gdal)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
 endif()
+install(FILES ${GDAL_ROOT_BINARY_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
+install(FILES ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h DESTINATION include/gdal)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)

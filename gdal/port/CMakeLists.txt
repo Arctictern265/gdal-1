@@ -223,9 +223,9 @@ else(MSVC)
 	message(STATUS "cpl_config.h is configured")
 endif(MSVC)
 
-include_directories(${GDAL_ROOT_BINARY_DIR}/port/)
+include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 set(LIB_HHEADERS
-        cpl_config.h
+        #cpl_config.h
         cplkeywordparser.h
         cpl_atomic_ops.h
         cpl_config_extras.h
