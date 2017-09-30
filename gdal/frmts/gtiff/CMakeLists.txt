@@ -88,7 +88,6 @@ set(LIB_HHEADERS
 	gt_wkt_srs_for_gdal.h
 	tifvsi.h
 	tif_float.h
-	gt_jpeg_copy.h
 )
 
 set(LIB_CSOURCES
@@ -98,7 +97,6 @@ set(LIB_CSOURCES
 	gt_wkt_srs.cpp
 	tifvsi.cpp
 	tif_float.c
-	gt_jpeg_copy.cpp
 )
 
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
@@ -113,6 +111,12 @@ endif(TIFF_FOUND)
 
 if(JPEG_FOUND)
 	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JPEG_LIBRARIES})
+    set(LIB_HHEADERS ${LIB_HHEADER}
+            gt_jpeg_copy.h
+    )
+    set(LIB_CSOURCES ${LIB_CSOURCES}
+            gt_jpeg_copy.cpp
+    )
 endif(JPEG_FOUND)
 
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
