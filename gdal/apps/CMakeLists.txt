@@ -174,7 +174,7 @@ apps_macro("gdal_grid" "${gdal_grid_CSOURCES}" "${gdal_grid_HHEADERS}")
 
 endif(GDAL_BUILD_APPS)
 
-if(GDAL_OGR_ENABLE)
+if(GDAL_ENABLE_OGR)
 
 #test_ogrsf.cpp
 	set(TEST_OGRSF_HHEADERS
