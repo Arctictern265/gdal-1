@@ -152,7 +152,7 @@ add_subdirectory(jp2lura)
 
 
 set(LIB_CSOURCES
-	gdalallregister.cpp
+    gdalallregister.cpp
 )
 
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

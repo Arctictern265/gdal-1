@@ -45,11 +45,11 @@ include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 
 find_package(GEOS)
 if(GEOS_FOUND)
-	get_filename_component(GEOS_ROOT ${GEOS_INCLUDE_DIR} PATH)
+    get_filename_component(GEOS_ROOT ${GEOS_INCLUDE_DIR} PATH)
     include_directories(${GEOS_INCLUDE_DIR})
     include_directories(${GEOS_ROOT}/capi)	
-	add_definitions(-DHAVE_GEOS=1)
-	set(GDAL_HAVE_GEOS ON PARENT_SCOPE)
+    add_definitions(-DHAVE_GEOS=1)
+    set(GDAL_HAVE_GEOS ON PARENT_SCOPE)
 endif(GEOS_FOUND)
 
 find_package(PROJ)
@@ -60,22 +60,22 @@ endif(PROJ_FOUND)
 
 #check zip and internal zip
 if(GDAL_USE_LIBZ)
-	add_definitions(-DHAVE_LIBZ -DZIP_SUPPORT)
-	if(GDAL_USE_LIBZ_INTERNAL)
-		include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/zlib)
-		# add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/zlib ${GDAL_ROOT_BINARY_DIR}/frmts/zlib)
-	else(GDAL_USE_LIBZ_INTERNAL)
-		find_package(ZLIB REQUIRED)
-		if(ZLIB_FOUND)
-			include_directories(${ZLIB_INCLUDE_DIRS})
-			add_definitions(-DHAVE_ZLIB_H -DHAVE_ZLIB)
-			if(MSVC)
-				add_definitions(-DZLIB_DLL)
-			endif(MSVC)
-		else(ZLIB_FOUND)	
-			MESSAGE(FATAL_ERROR "Could not find ZLIB")
-		endif(ZLIB_FOUND)		
-	endif(GDAL_USE_LIBZ_INTERNAL)
+    add_definitions(-DHAVE_LIBZ -DZIP_SUPPORT)
+    if(GDAL_USE_LIBZ_INTERNAL)
+        include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/zlib)
+        # add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/zlib ${GDAL_ROOT_BINARY_DIR}/frmts/zlib)
+    else(GDAL_USE_LIBZ_INTERNAL)
+        find_package(ZLIB REQUIRED)
+        if(ZLIB_FOUND)
+            include_directories(${ZLIB_INCLUDE_DIRS})
+            add_definitions(-DHAVE_ZLIB_H -DHAVE_ZLIB)
+            if(MSVC)
+                add_definitions(-DZLIB_DLL)
+            endif(MSVC)
+        else(ZLIB_FOUND)
+            MESSAGE(FATAL_ERROR "Could not find ZLIB")
+        endif(ZLIB_FOUND)
+    endif(GDAL_USE_LIBZ_INTERNAL)
 endif(GDAL_USE_LIBZ)
 
 set(LIB_INST_HEADERS
@@ -178,13 +178,13 @@ find_package(EXPAT)
 if(EXPAT_FOUND)
     include_directories(${EXPAT_INCLUDE_DIRS})
     add_definitions(-DHAVE_EXPAT)
-	set(GDAL_HAVE_EXPAT ON PARENT_SCOPE)
-	set(LIB_HHEADERS ${LIB_HHEADERS}
-		ogr_expat.h
-	)
-	set(LIB_CSOURCES ${LIB_CSOURCES}
-		ogr_expat.cpp
-	)
+    set(GDAL_HAVE_EXPAT ON PARENT_SCOPE)
+    set(LIB_HHEADERS ${LIB_HHEADERS}
+        ogr_expat.h
+    )
+    set(LIB_CSOURCES ${LIB_CSOURCES}
+        ogr_expat.cpp
+    )
 endif(EXPAT_FOUND)
 
 add_subdirectory(ogrsf_frmts)
@@ -193,15 +193,15 @@ set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PAR
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 
 if(EXPAT_FOUND)
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${EXPAT_LIBRARIES})
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${EXPAT_LIBRARIES})
 endif(EXPAT_FOUND)
 
 if(ZLIB_FOUND)
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${ZLIB_LIBRARIES})
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${ZLIB_LIBRARIES})
 endif(ZLIB_FOUND)
 
 if(GEOS_FOUND)
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${GEOS_LIBRARY})
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${GEOS_LIBRARY})
 endif(GEOS_FOUND)
 
 if(PROJ_FOUND)
@@ -210,11 +210,11 @@ endif(PROJ_FOUND)
 
 find_package(XercesC)
 if(XercesC_FOUND)
-	include_directories(${XercesC_INCLUDE_DIRS})
-	include_directories(/usr/include/xercesc)
-	add_definitions(-DHAVE_XERCES)
-	set(GDAL_HAVE_XERCES ON CACHE INTERNAL "GDAL_HAVE_XERCES")
-	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${XercesC_LIBRARIES})
+    include_directories(${XercesC_INCLUDE_DIRS})
+    include_directories(/usr/include/xercesc)
+    add_definitions(-DHAVE_XERCES)
+    set(GDAL_HAVE_XERCES ON CACHE INTERNAL "GDAL_HAVE_XERCES")
+    set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${XercesC_LIBRARIES})
 endif()
 
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
