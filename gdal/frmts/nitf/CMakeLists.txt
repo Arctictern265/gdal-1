@@ -46,8 +46,6 @@ set(LIB_CSOURCES
         mgrs.c
         nitfdataset.cpp
         rpftocdataset.cpp
-        nitfwritejpeg.cpp
-        nitfwritejpeg_12.cpp
         nitfrasterband.cpp
         ecrgtocdataset.cpp
 )
@@ -71,12 +69,23 @@ if(GDAL_JPEG_SUPPORT)
     add_definitions(-DJPEG_SUPPORTED)
     if(GDAL_USE_LIBJPEG_INTERNAL)
         include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/jpeg/libjpeg)
+    else()
+        find_package(JPEG REQUIRED)
+        set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${JPEG_LIBRARIES})
     endif()
     if(GDAL_JPEG12_SUPPORTED)
          add_definitions(-DJPEG_DUAL_MODE_8_12)
+         set(LIB_CSOURCES ${LIB_CSOURCES}
+            nitfwritejpeg_12.cpp
+         )
+    else()
+         set(LIB_CSOURCES ${LIB_CSOURCES}
+             nitfwritejpeg.cpp
+         )
     endif()
 endif()
 
 add_definitions(-DFRMT_nitf)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${NITFLIB_CSOURCES} ${LIB_CSOURCES})
+set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} PARENT_SCOPE)
