@@ -36,34 +36,40 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/raw)
 
 set(LIB_HHEADERS
-	gdalhttp.h
-	md5.h
-	minidriver_tiled_wms.h
-    minidriver_tileservice.h
-    minidriver_tms.h
-    minidriver_virtualearth.h
-    minidriver_wms.h
-    minidriver_worldwind.h
-    wmsdriver.h
-    wmsmetadataset.h
+        gdalhttp.h
+        md5.h
+        minidriver_tiled_wms.h
+        minidriver_tileservice.h
+        minidriver_tms.h
+        minidriver_virtualearth.h
+        minidriver_wms.h
+        minidriver_worldwind.h
+        minidriver_arcgis_server.h
+        minidriver_mrf.h
+        minidriver_iip.h
+        wmsdriver.h
+        wmsmetadataset.h
 )
 
 set(LIB_CSOURCES
-    gdalwmscache.cpp
-    gdalwmsdataset.cpp
-    gdalhttp.cpp
-    md5.cpp
-    minidriver.cpp
-    gdalwmsrasterband.cpp
-    wmsdriver.cpp
-    minidriver_wms.cpp
-    minidriver_tileservice.cpp
-    minidriver_worldwind.cpp
-    minidriver_tms.cpp
-    minidriver_tiled_wms.cpp
-    wmsmetadataset.cpp 
-    minidriver_virtualearth.cpp
-    wmsutils.cpp
+        gdalwmscache.cpp
+        gdalwmsdataset.cpp
+        gdalhttp.cpp
+        md5.cpp
+        minidriver.cpp
+        gdalwmsrasterband.cpp
+        wmsdriver.cpp
+        minidriver_iip.cpp
+        minidriver_wms.cpp
+        minidriver_tileservice.cpp
+        minidriver_worldwind.cpp
+        minidriver_tms.cpp
+        minidriver_tiled_wms.cpp
+        minidriver_mrf.cpp
+        wmsmetadataset.cpp
+        minidriver_virtualearth.cpp
+        wmsutils.cpp
+		minidriver_arcgis_server.cpp
 )
 
 find_package(CURL REQUIRED)
