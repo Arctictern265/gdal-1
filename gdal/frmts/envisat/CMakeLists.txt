@@ -39,6 +39,7 @@ set(LIB_HHEADERS
         EnvisatFile.h
         records.h
         adsrange.hpp
+        timedelta.hpp
 )
 
 set(LIB_CSOURCES
