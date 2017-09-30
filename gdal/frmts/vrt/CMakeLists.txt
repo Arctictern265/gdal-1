@@ -36,21 +36,27 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/raw)
 
 set(LIB_HHEADERS
-	gdal_vrt.h
-	vrtdataset.h
+        gdal_vrt.h
+        vrtdataset.h
 )
 
 set(LIB_CSOURCES
-	vrtderivedrasterband.cpp
-	vrtdriver.cpp
-	vrtfilters.cpp
-	vrtrasterband.cpp
-	vrtrawrasterband.cpp
-	vrtsourcedrasterband.cpp
-	vrtsources.cpp
-	vrtwarped.cpp
-	vrtdataset.cpp
+        vrtderivedrasterband.cpp
+        vrtdriver.cpp
+        vrtfilters.cpp
+        vrtrasterband.cpp
+        vrtrawrasterband.cpp
+        vrtsourcedrasterband.cpp
+        vrtsources.cpp
+        vrtwarped.cpp
+        vrtdataset.cpp
+		pixelfunctions.cpp
+		vrtpansharpened.cpp
 )
+
+if(HAVE_GEOS)
+    add_definitions(-DHAVE_GEOS)
+endif()
 
 if(NOT GDAL_ENABLE_FRMT_RAW)
 	set(LIB_HHEADERS ${LIB_HHEADERS}
