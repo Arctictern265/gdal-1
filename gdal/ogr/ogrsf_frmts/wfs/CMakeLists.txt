@@ -35,14 +35,15 @@ include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/gml)  
 
 set(LIB_HHEADERS
-    ogr_wfs.h
+        ogr_wfs.h
 )
 
 set(LIB_CSOURCES
-	ogrwfsdatasource.cpp
-	ogrwfsdriver.cpp
-	ogrwfsfilter.cpp
-	ogrwfslayer.cpp
+        ogrwfsdatasource.cpp
+        ogrwfsdriver.cpp
+        ogrwfsfilter.cpp
+        ogrwfslayer.cpp
+		ogrwfsjoinlayer.cpp
 )
 
 include(MacroOptionalAddDriver)
