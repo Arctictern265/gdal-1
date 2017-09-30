@@ -5,14 +5,11 @@ export PATH=$PWD/cmake-3.9.2-Linux-x86_64/bin/:$PATH
 
 mkdir cmake-gdal-debug
 cd cmake-gdal-debug
-LDFLAGS='-lstdc++' cmake \
+cmake \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_CXX_COMPILER=clang++-4.0 \
   -DCMAKE_C_COMPILER=clang-4.0 \
   ../gdal
-
-# XXX: temporary off cppcheck.
-#cd ../gdal && scripts/cppcheck.sh
 
 #cmake --build . --target docs >docs_log.txt 2>&1
 #if cat docs_log.txt | grep -i warning | grep -v russian | grep -v brazilian | grep -v setlocale | grep -v 'has become obsolete' | grep -v 'To avoid this warning'; then echo 'Doxygen warnings found' && cat docs_log.txt && /bin/false; else echo 'No Doxygen warnings found'; fi
@@ -20,8 +17,6 @@ LDFLAGS='-lstdc++' cmake \
 #if cat man_log.txt | grep -i warning | grep -v setlocale | grep -v 'has become obsolete' | grep -v 'To avoid this warning'; then echo 'Doxygen warnings found' && cat docs_log.txt && /bin/false; else echo 'No Doxygen warnings found'; fi
 
 cmake --build . -- USER_DEFS=-Werror -j3
-
-#cmake --build ./apps --target test_ogrsf -- USER_DEFS=-Werror -j3
 
 sudo rm -f /usr/lib/libgdal.so*
 cmake --build . --target install
