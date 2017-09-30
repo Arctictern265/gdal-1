@@ -9,6 +9,8 @@
 # and following variables are set:
 #    DAP_INCLUDE_DIR
 #    DAP_LIBRARY
+#    DAP_CLIENT_LIBRARY
+#    DAP_SERVER_LIBRARY
 #    DAP_VERSION
 #
 # FIND_PATH and FIND_LIBRARY normally search standard locations
@@ -27,6 +29,8 @@ if(APPLE)
         set(CMAKE_FIND_FRAMEWORK_save ${CMAKE_FIND_FRAMEWORK} CACHE STRING "" FORCE)
         set(CMAKE_FIND_FRAMEWORK "ONLY" CACHE STRING "" FORCE)
         find_library(DAP_LIBRARY DAP)
+        find_library(DAP_CLIENT_LIBRARY DAPCLIENT)
+        find_library(DAP_SERVER_LIBRARY DAPSERVER)
         if(DAP_LIBRARY)
             # FIND_PATH doesn't add "Headers" for a framework
             SET (DAP_INCLUDE_DIR ${DAP_LIBRARY}/Headers CACHE PATH "Path to a file.")
@@ -35,8 +39,14 @@ if(APPLE)
     endif()
 endif(APPLE)
 
+FIND_PACKAGE(PkgConfig QUIET)
+IF(PKG_CONFIG_FOUND)
+    # try using pkg-config to get the directories and then use these values
+    # in the FIND_PATH() and FIND_LIBRARY() calls
+    PKG_CHECK_MODULES(PC_DAP QUIET dap)
+ENDIF()
 
-find_path(DAP_INCLUDE_DIR DapObj.h
+SET(DAP_INCLUDE_PATHS
         "$ENV{LIB_DIR}/"
         "$ENV{LIB_DIR}/include/"
         "$ENV{DAP_ROOT}/"
@@ -44,35 +54,49 @@ find_path(DAP_INCLUDE_DIR DapObj.h
         /usr/local/include/libdap
         #mingw
         c:/msys/local/include/libdap
-        NO_DEFAULT_PATH
-        )
-find_path(DAP_INCLUDE_DIR DapObj.h)
+)
 
-find_library(DAP_LIBRARY NAMES dap libdap PATHS
-  "$ENV{LIB_DIR}/lib"
-  /usr/lib
-  /usr/local/lib
-  #mingw
-  c:/msys/local/lib
-  NO_DEFAULT_PATH
-  )
-find_library(DAP_LIBRARY NAMES dap libdap)
+SET(DAP_LIBRARIES_PATHS
+      "$ENV{LIB_DIR}/lib"
+      /usr/lib
+      /usr/local/lib
+      #mingw
+      c:/msys/local/lib
+)
 
-if(DAP_INCLUDE_DIR AND DAP_LIBRARY)
-    set(DAP_FOUND TRUE)
-    set(DAP_CONFIG_EXE dap-config)
-    execute_process(COMMAND ${DAP_CONFIG_EXE} --version
-            OUTPUT_VARIABLE DAP_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-endif(DAP_INCLUDE_DIR AND DAP_LIBRARY)
+find_path(DAP_INCLUDE_DIR
+        NAMES DapObj.h
+        PATHS ${DAP_INCLUDE_PATHS}
+        HINTS ${PC_DAP_INCLUDE_DIRS}
+)
+
+find_library(DAP_LIBRARY
+        NAMES dap libdap
+        PATHS ${DAP_LIBRARIES_PATHS}
+        HINTS ${PC_DAP_LIBRARY_DIRS}
+)
+
+find_library(DAP_CLIENT_LIBRARY
+        NAMES dapclient libdapclient
+        PATHS ${DAP_LIBRARIES_PATHS}
+        HINTS ${PC_DAP_LIBRARY_DIRS}
+)
+
+find_library(DAP_SERVER_LIBRARY
+        NAMES dapserver libdapserver
+        PATHS ${DAP_LIBRARIES_PATHS}
+        HINTS ${PC_DAP_LIBRARY_DIRS}
+)
+
+MARK_AS_ADVANCED(DAP_INCLUDE_DIR DAP_LIBRARY DAP_CLIENT_LIBRARY DAP_SERVER_LIBRARY)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(DAP DEFAULT_MSG DAP_LIBRARY DAP_CLIENT_LIBRARY DAP_SERVER_LIBRARY DAP_INCLUDE_DIR)
 
 if(DAP_FOUND)
-   if(NOT DAP_FIND_QUIETLY)
-      message(STATUS "Found DAP: ${DAP_LIBRARY}")
-   endif(NOT DAP_FIND_QUIETLY)
-else(DAP_FOUND)
-   if(DAP_FIND_REQUIRED)
-      message(FATAL_ERROR "Could not find DAP")
-   endif(DAP_FIND_REQUIRED)
+   set(DAP_CONFIG_EXE dap-config)
+   execute_process(COMMAND ${DAP_CONFIG_EXE} --version
+           OUTPUT_VARIABLE DAP_VERSION
+           OUTPUT_STRIP_TRAILING_WHITESPACE
+   )
 endif(DAP_FOUND)
