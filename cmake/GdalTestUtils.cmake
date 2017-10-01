@@ -26,9 +26,9 @@
 # ******************************************************************************
 
 macro(gdal_autotest_target testname testlabel lang options)
-    add_executable(${testname} "${testname}.${lang}")
+    add_executable(${testname} ${testname}.${lang})
     target_link_libraries(${testname} ${GDAL_LIB_NAME})
-    add_test(NAME "${testlabel}"
-            COMMAND "${testname} ${options}")
+    add_test(NAME ${testlabel}
+            COMMAND ${testname} ${options})
     message(STATUS "test target: ${testlabel}")
 endmacro()
