@@ -56,6 +56,8 @@ message(STATUS "gdal version=[${GDAL_VERSION}]")
 set(GDAL_LIB_NAME gdal${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION})
 message(STATUS "GDAL lib name ... " ${GDAL_LIB_NAME})
 
+set(GDAL_LIB_NAME ${GDAL_LIB_NAME} PARENT_SCOPE)
+
 #diagnosing info
 message(STATUS "c++ compiler ... " ${CMAKE_CXX_COMPILER})
 
@@ -128,10 +130,12 @@ add_subdirectory(gnm)
 
 add_subdirectory(swig)
 
+message(STATUS "---------------------------")
 list(REMOVE_DUPLICATES GDAL_TARGET_OBJECTS)
 foreach(TO ${GDAL_TARGET_OBJECTS})
 	message(STATUS "gdal link=${TO}")
 endforeach()
+message(STATUS "---------------------------")
 
 option(GDAL_BUILD_SHARED "Set ON to build shared library" ON)
 if(GDAL_BUILD_SHARED)

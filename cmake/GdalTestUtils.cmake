@@ -2,7 +2,7 @@
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
 # * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
-# *         Hiroshi Miura <miurahr@linux.com>
+# *         Hiroshi Miura
 # ******************************************************************************
 # * Copyright (C) 2017 Hiroshi Miura
 # *
@@ -25,17 +25,10 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 3.8)
-
-# set path to additional CMake modules
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-
-add_subdirectory(cpp)
-
-#add_test(gcore-test python run_all.py gcore)
-#add_test(gdrivers-test python run_all.py gdrivers)
-#add_test(alg-test python run_all.py alg)
-#add_test(osr-test python run_all.py osr)
-#add_test(ogr-test python run_all.py ogr)
-#add_test(utilities-test python run_all.py utilities)
-#add_test(pyscripts-test python run_all.py pyscripts)
+macro(gdal_autotest_target testname testlabel lang options)
+    add_executable(${testname} "${testname}.${lang}")
+    target_link_libraries(${testname} ${GDAL_LIB_NAME})
+    add_test(NAME "${testlabel}"
+            COMMAND "${testname} ${options}")
+    message(STATUS "test target: ${testlabel}")
+endmacro()

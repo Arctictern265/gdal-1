@@ -1,8 +1,7 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru,
-# *         Hiroshi Miura <miurahr@linux.com>
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru, Hiroshi Miura
 # ******************************************************************************
 # * Copyright (C) 2017 Hiroshi Miura
 # *
@@ -27,15 +26,15 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-# set path to additional CMake modules
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+set(PROJECT_NAME "gdal")
+project(${PROJECT_NAME})
 
-add_subdirectory(cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-#add_test(gcore-test python run_all.py gcore)
-#add_test(gdrivers-test python run_all.py gdrivers)
-#add_test(alg-test python run_all.py alg)
-#add_test(osr-test python run_all.py osr)
-#add_test(ogr-test python run_all.py ogr)
-#add_test(utilities-test python run_all.py utilities)
-#add_test(pyscripts-test python run_all.py pyscripts)
+set(GDAL_ROOT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/gdal)
+set(GDAL_ROOT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+add_subdirectory(gdal)
+add_subdirectory(autotest)
+#add_subdirectory(test)
