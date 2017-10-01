@@ -58,7 +58,8 @@ message(STATUS "---------------------------")
 add_library(vsipreload ${CMAKE_SOURCE_DIR}/gdal/port/vsipreload.cpp)
 enable_testing()
 add_executable(gdal_unit_test
-        gdal_unit_test.cpp gdal_unit_test.h
+        gdal_unit_test.h
+        gdal_unit_test.cpp
         test_alg.cpp
         test_cpl.cpp
         test_gdal.cpp
@@ -73,44 +74,58 @@ add_executable(gdal_unit_test
         test_osr_ct.cpp
         test_osr_proj4.cpp
         test_triangulation.cpp
+        tut/tut.hpp
+        tut/tut_assert.hpp
+        tut/tut_console_reporter.hpp
+        tut/tut_exception.hpp
+        tut/tut_gdal.h
+        tut/tut_posix.hpp
+        tut/tut_reporter.hpp
+        tut/tut_restartable.hpp
+        tut/tut_result.hpp
+        tut/tut_runner.hpp
+        tut/tut_gdal.cpp
         )
 target_link_libraries(gdal_unit_test ${GDAL_LIB_NAME})
-add_test(NAME "GDAL Unit Test"
-        COMMAND "gdal_unit_test")
+add_test(NAME gdal_unit_test
+        COMMAND gdal_unit_test)
 message(STATUS "test target: gdal_unit_test")
 
 include(GdalTestUtils)
-gdal_autotest_target(testcopywords "Test copy words" cpp "")
-gdal_autotest_target(testclosedondestroydm "Test closed on destroy DM" cpp "")
-gdal_autotest_target(testthreadcond "Test threaded condition" cpp "")
-gdal_autotest_target(testvirtualmem "Test virtual memory" cpp "")
-gdal_autotest_target(testblockcachewrite "Test block cache write" cpp "--debug ON")
-gdal_autotest_target(testblockcachelimits "Test block cache limit" cpp "--debug ON")
-gdal_autotest_target(testmultithreadedwriting "Test multi-threaded writing" cpp "")
-gdal_autotest_target(testdestroy "Test destroy" cpp "")
-gdal_autotest_target(test_include_from_c_file "Test include from C file" c "")
-gdal_autotest_target(test_c_include_from_cpp_file "Test C include from CPP file" cpp "")
-gdal_autotest_target(testperfcopywords "Test performance copy words" cpp "")
+gdal_autotest_target(testcopywords test-copy-words cpp "")
+gdal_autotest_target(testclosedondestroydm test-closed-on-destroy-DM cpp "")
+gdal_autotest_target(testthreadcond test-threaded-condition cpp "")
+gdal_autotest_target(testvirtualmem test-virtual-memory cpp "")
+gdal_autotest_target(testblockcachewrite test-block-cache-write cpp "--debug ON")
+gdal_autotest_target(testblockcachelimits test-block-cache-limit cpp "--debug ON")
+gdal_autotest_target(testmultithreadedwriting test-multi-threaded-writing cpp "")
+gdal_autotest_target(testdestroy test-destroy cpp "")
+gdal_autotest_target(test_include_from_c_file test-include-from-C-file c "")
+gdal_autotest_target(test_c_include_from_cpp_file test-C-include-from-CPP-file cpp "")
+gdal_autotest_target(testperfcopywords test-performance-copy-words cpp "")
 
 add_executable(testblockcache testblockcache.cpp)
 target_link_libraries(testblockcache ${GDAL_LIB_NAME})
 message(STATUS "test target: Test block cache")
 
-add_test(NAME "Test block cache 1"
-		COMMAND "testblockcache -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES")
-add_test(NAME "Test block cache 2"
-		COMMAND "testblockcache -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES --config GDAL_RB_LOCK_TYPE SPIN")
-add_test(NAME "Test block cache 3"
-		COMMAND "testblockcache -check -co TILED=YES -migrate")
-add_test(NAME "Test block cache 4"
-		COMMAND "testblockcache -check -memdriver")
-add_test(NAME "Test block cache 5"
-		COMMAND "testblockcache --config GDAL_BAND_BLOCK_CACHE HASHSET -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES")
-add_test(NAME "Test block cache 6"
-		COMMAND "testblockcache --config GDAL_BAND_BLOCK_CACHE HASHSET -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES --config GDAL_RB_LOCK_TYPE SPIN")
+add_test(NAME block-cache-1
+		COMMAND testblockcache -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES)
+add_test(NAME block-cache-2
+		COMMAND testblockcache -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES --config GDAL_RB_LOCK_TYPE SPIN)
+add_test(NAME block-cache-3
+		COMMAND testblockcache -check -co TILED=YES -migrate)
+add_test(NAME block-cache-4
+		COMMAND testblockcache -check -memdriver)
+add_test(NAME block-cache-5
+		COMMAND testblockcache --config GDAL_BAND_BLOCK_CACHE HASHSET -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES)
+add_test(NAME block-cache-6
+		COMMAND testblockcache --config GDAL_BAND_BLOCK_CACHE HASHSET -check -co TILED=YES --debug TEST,LOCK -loops 3 --config GDAL_RB_LOCK_DEBUG_CONTENTION YES --config GDAL_RB_LOCK_TYPE SPIN)
 
 add_executable(testsse1 testsse.cpp)
 set_target_properties(testsse1 PROPERTIES CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
 add_executable(testsse2 testsse.cpp)
 set_target_properties(testsse2 PROPERTIES CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SSE2_EMULATION")
 add_executable(testsse3 testsse.cpp)
+add_test(testsse1 testsse1)
+add_test(testsse2 testsse2)
+add_test(testsse3 testsse3)

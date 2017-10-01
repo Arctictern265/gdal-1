@@ -10,7 +10,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_CXX_COMPILER=clang++-4.0 \
   -DCMAKE_C_COMPILER=clang-4.0 \
-  ../gdal
+  ../
 
 #cmake --build . --target docs >docs_log.txt 2>&1
 #if cat docs_log.txt | grep -i warning | grep -v russian | grep -v brazilian | grep -v setlocale | grep -v 'has become obsolete' | grep -v 'To avoid this warning'; then echo 'Doxygen warnings found' && cat docs_log.txt && /bin/false; else echo 'No Doxygen warnings found'; fi
@@ -23,5 +23,4 @@ sudo rm -f /usr/lib/libgdal.so*
 sudo $CMAKE_ROOT/bin/cmake --build . --target install
 sudo ldconfig
 
-cd ../autotest/cpp && make -j3
 exit 0
