@@ -10,6 +10,8 @@ cmake \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_CXX_COMPILER=clang++-4.0 \
   -DCMAKE_C_COMPILER=clang-4.0 \
+  -DGDAL_ENABLE_FRMT_RAW=ON \
+  -DLANGUAGE_BINDING_PYTHON=ON \
   ../
 
 #cmake --build . --target docs >docs_log.txt 2>&1

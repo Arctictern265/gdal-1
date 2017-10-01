@@ -28,7 +28,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 set(PROJECT_NAME "gdallib")
-project(${PROJECT_NAME})
+project(${PROJECT_NAME} C CXX)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 

@@ -27,7 +27,7 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-project(gdal_autotest_cpp)
+project(gdal_autotest_cpp C CXX)
 
 set(CMAKE_COLOR_MAKEFILE ON)
 
