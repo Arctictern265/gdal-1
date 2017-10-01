@@ -30,8 +30,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #config.git_proxy.http  = ""
   end
 
-  config.vm.synced_folder "../autotest/", "/home/vagrant/autotest/"
-
   config.vm.provider :virtualbox do |vb,ovrd|
      ovrd.vm.network :forwarded_port, guest: 80, host: 8080
      ovrd.vm.box = "trusty64"

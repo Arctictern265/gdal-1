@@ -3,6 +3,9 @@
 *.obj
 *.so
 *~
+.vs/
+.vscode/
 .idea/
+.vagrant/
 cmake-build-debug
 cmake-build-release
