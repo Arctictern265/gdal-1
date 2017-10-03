@@ -56,7 +56,6 @@ set(LIB_CSOURCES
 	gifdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_GIF "Set ON to build gif driver" OFF)
 if(GDAL_ENABLE_FRMT_GIF)
 	add_definitions(-DFRMT_gif)
 	set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

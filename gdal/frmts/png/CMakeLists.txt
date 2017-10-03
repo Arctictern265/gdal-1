@@ -69,7 +69,6 @@ set(LIB_CSOURCES
 	pngdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_PNG "Set ON to build png driver" OFF)
 if(GDAL_ENABLE_FRMT_PNG)
 	add_definitions(-DFRMT_png)
 	set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

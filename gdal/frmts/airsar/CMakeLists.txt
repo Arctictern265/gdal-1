@@ -38,7 +38,6 @@ set(LIB_CSOURCES
         airsardataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_AIRSAR "Set ON to build airsar driver" OFF)
 if(GDAL_ENABLE_FRMT_AIRSAR)
 	add_definitions(-DFRMT_airsar)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

@@ -43,7 +43,6 @@ set(LIB_CSOURCES
         bsbdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_BSB "Set ON to build bsb driver" OFF)
 if(GDAL_ENABLE_FRMT_BSB)
 	add_definitions(-DFRMT_bsb)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

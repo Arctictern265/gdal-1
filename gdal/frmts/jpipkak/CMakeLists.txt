@@ -43,8 +43,7 @@ set(LIB_CSOURCES
         jpipkakdataset.cpp
 )
 
-MACRO_OPTIONAL_ADD_DRIVER(JPIPKEK jpipkak OFF)
-if(OGR_ENABLE_JPIPKEK)
+if(GDAL_ENABLE_FRMT_JPIPKAK)
     set(KAKDIR ${KAKADU_DIRECTORY})
     include_directories($(KAKDIR)/coresys/common;$(KAKDIR)/apps/compressed_io;
 	$(KAKDIR)/apps/jp2;$(KAKDIR)/apps/image;$(KAKDIR)/apps/args;

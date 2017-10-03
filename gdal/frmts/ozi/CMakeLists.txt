@@ -56,7 +56,6 @@ set(LIB_CSOURCES
 	ozidataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_OZI "Set ON to build ozi driver" OFF)
 if(GDAL_ENABLE_FRMT_OZI)
 	add_definitions(-DFRMT_ozi)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

@@ -46,8 +46,7 @@ set(LIB_CSOURCES
         jp2lurarasterband.cpp
 )
 
-MACRO_OPTIONAL_ADD_DRIVER(JP2LURA jp2lura OFF)
-if(OGR_ENABLE_JP2LURA)
+if(GDAL_ENABLE_FRMT_JP2LURA)
     set(JP2LURA_DIR ${LURATECH_JP2SDK_DIRECTORY})
     include_directories(${JP2LURA_DIR})
     add_definitions(-DFRMT_jp2kak)

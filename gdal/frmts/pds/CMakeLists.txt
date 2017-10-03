@@ -48,6 +48,7 @@ set(LIB_CSOURCES
         isis3dataset.cpp
         nasakeywordhandler.cpp
         pdsdataset.cpp
+        pds4dataset.cpp
         vicardataset.cpp
         vicarkeywordhandler.cpp
 )

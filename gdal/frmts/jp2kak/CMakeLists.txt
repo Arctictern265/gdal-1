@@ -45,8 +45,7 @@ set(LIB_CSOURCES
         jp2kakdataset.cpp
 )
 
-MACRO_OPTIONAL_ADD_DRIVER(JP2KEK jp2kek OFF)
-if(OGR_ENABLE_JP2KEK)
+if(GDAL_ENABLE_FRMT_JP2KAK)
     set(KAKDIR ${KAKADU_DIRECTORY})
     include_directories($(KAKDIR)/coresys/common;$(KAKDIR)/apps/compressed_io;
 	$(KAKDIR)/apps/jp2;$(KAKDIR)/apps/image;$(KAKDIR)/apps/args;

@@ -47,7 +47,6 @@ set(LIB_CSOURCES
         aitest.c
 )
 
-option(GDAL_ENABLE_FRMT_AIGRID "Set ON to build aigrid driver" OFF)
 if(GDAL_ENABLE_FRMT_AIGRID)
 	add_definitions(-DFRMT_aigrid)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
