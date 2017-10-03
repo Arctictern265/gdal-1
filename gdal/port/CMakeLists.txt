@@ -1,9 +1,10 @@
 # ******************************************************************************
 # * Project:  CMake4GDAL
 # * Purpose:  CMake build scripts
-# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru
+# * Author: Dmitriy Baryshnikov (aka Bishop), polimax@mail.ru, Hiroshi Miura
 # ******************************************************************************
 # * Copyright (C) 2012,2013 Bishop
+# * Copyright (C) 2017 Hiroshi Miura
 # * 
 # * Permission is hereby granted, free of charge, to any person obtaining a
 # * copy of this software and associated documentation files (the "Software"),
@@ -52,6 +53,7 @@ else(MSVC)
     include (CheckIncludeFiles)
     include (CheckLibraryExists)
     include (CheckSymbolExists)
+    include (CheckCXXSymbolExists)
     include (CheckTypeSize)  
     include (TestBigEndian)
     include (CheckCXXSourceCompiles)
@@ -155,6 +157,14 @@ else(MSVC)
     check_type_size ("_Bool"         HAVE__BOOL          )
     check_type_size ("intptr_t"      SIZEOF_INTPTR_T     )
 
+    include(FindInt128)
+    FIND_INT128_TYPES()
+    if(UINT128_FOUND)
+        if(UINT128_DEF STRING_EQUAL "HAVE__uint128_t")
+            gdal_add_definitions(HAVE_UINT128_T)
+        endif()
+    endif()
+
 #    test_big_endian(WORDS_BIGENDIAN)
     if (WORDS_BIGENDIAN)
         set (HOST_FILLORDER FILLORDER_MSB2LSB)
@@ -206,9 +216,15 @@ else(MSVC)
     check_include_file(values.h HAVE_VALUES_H)
     gdal_add_definitions(HAVE_VALUES_H)
 
+    check_cxx_symbol_exists(_SC_PHYS_PAGES unistd.h HAVE_SC_PHYS_PAGES)
+
     check_function_exists("vprintf" HAVE_VPRINTF)
     check_function_exists("vsnprintf" HAVE_VSNPRINTF)
     check_function_exists("readlink" HAVE_READLINK)
+
+    CHECK_C_SOURCE_COMPILES("#define _GNU_SOURCE\n#include <sys/mman.h>\n
+    void main(void) {return (mremap(0,0,0,0,0));}"  HAVE_5ARGS_MREMAP)
+
  
     if(MACOSX_BUNDLE)
         set(CPL_CONFIG_EXTRAS "#include \"cpl_config_extras.h\"" INTERNAL)
