@@ -53,12 +53,25 @@ include_directories(
 
 add_definitions(-DGDAL_COMPILATION)
 set(GDAL_ROOT_BINARY_DIR "${CMAKE_BINARY_DIR}/gdal")
+set(GDAL_TEST_ROOT_DIR ${CMAKE_SOURCE_DIR}/autotest)
+add_definitions(-DGDAL_TEST_ROOT_DIR="${GDAL_TEST_ROOT_DIR}")
 
 message(STATUS "---------------------------")
 add_library(vsipreload ${CMAKE_SOURCE_DIR}/gdal/port/vsipreload.cpp)
 enable_testing()
-add_executable(gdal_unit_test
-        gdal_unit_test.h
+set(TUT_SOURCES
+        tut/tut.hpp
+        tut/tut_assert.hpp
+        tut/tut_exception.hpp
+        tut/tut_console_reporter.hpp
+        tut/tut_posix.hpp
+        tut/tut_restartable.hpp
+        tut/tut_reporter.hpp
+        tut/tut_result.hpp
+        tut/tut_runner.hpp
+        tut/tut_gdal.cpp
+        )
+add_executable(gdal_unit_test ${TUT_SOURCES}
         gdal_unit_test.cpp
         test_alg.cpp
         test_cpl.cpp
@@ -74,17 +87,6 @@ add_executable(gdal_unit_test
         test_osr_ct.cpp
         test_osr_proj4.cpp
         test_triangulation.cpp
-        tut/tut.hpp
-        tut/tut_assert.hpp
-        tut/tut_console_reporter.hpp
-        tut/tut_exception.hpp
-        tut/tut_gdal.h
-        tut/tut_posix.hpp
-        tut/tut_reporter.hpp
-        tut/tut_restartable.hpp
-        tut/tut_result.hpp
-        tut/tut_runner.hpp
-        tut/tut_gdal.cpp
         )
 target_link_libraries(gdal_unit_test ${GDAL_LIB_NAME})
 add_test(NAME gdal_unit_test
