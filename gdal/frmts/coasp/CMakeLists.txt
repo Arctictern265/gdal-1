@@ -38,6 +38,5 @@ set(LIB_CSOURCES
         coasp_dataset.cpp
 )
 
-add_definitions(-DFRMT_coasp)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})

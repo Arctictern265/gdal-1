@@ -43,8 +43,7 @@ set(LIB_HHEADERS ${KEA_GDAL_H}
 
 set(LIB_CSOURCES ${KEA_GDAL_CPP})
 
-MACRO_OPTIONAL_ADD_DRIVER(KEA kea OFF)
-if(OGR_ENABLE_KEA)
+if(GDAL_ENABLE_FRMT_KEA)
     option(KEAHDF5_STATIC_LIBS "Build against static KEA and HDF5" OFF)
     find_package(KEA)
     if(MSVC)
@@ -52,7 +51,6 @@ if(OGR_ENABLE_KEA)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4290 /wd4005 /wd4101 /wd4244 /wd4800 /wd4251 /wd4996")
     endif()
     set(LIBS ${LIBS} ${KEA_LIBRARIES})
-    add_definitions(-DFRMT_kea)
     include_directories(${KEA_INCLUDE_DIRS})
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
     add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

@@ -44,7 +44,6 @@ set(LIB_CSOURCES
         blxdataset.cpp
 )
 
-add_definitions(-DFRMT_blx)
 add_definitions(-DGDALDRIVER)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

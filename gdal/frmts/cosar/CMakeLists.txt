@@ -41,6 +41,5 @@ set(LIB_CSOURCES
         cosar_dataset.cpp
 )
 
-add_definitions(-DFRMT_cosar)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})

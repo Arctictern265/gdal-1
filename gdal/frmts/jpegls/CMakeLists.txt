@@ -42,7 +42,6 @@ set(LIB_CSOURCES
         jpeglsdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_JPEGLS jpegls OFF)
 if(GDAL_ENABLE_FRMT_JPEGLS)
     add_definitions(-DFRMT_jpegls)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)

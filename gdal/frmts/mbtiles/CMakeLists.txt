@@ -41,9 +41,7 @@ set(LIB_CSOURCES
         mbtilesdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_MBTILES mbtiles OFF)
 if(GDAL_ENABLE_FRMT_MBTILES)
-    add_definitions(-DFRMT_mbtiles)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
     add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 endif()

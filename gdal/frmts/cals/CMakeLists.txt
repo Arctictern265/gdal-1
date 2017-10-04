@@ -39,6 +39,5 @@ set(LIB_CSOURCES
         calsdataset.cpp
 )
 
-add_definitions(-DFRMT_cals)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})

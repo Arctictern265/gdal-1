@@ -51,9 +51,7 @@ set(LIB_CSOURCES
 	postgisrastertools.cpp
 )
 
-option(GDAL_ENABLE_FRMT_POSTGISRASTER "Set ON to build postgis raster driver" OFF)
 if(GDAL_ENABLE_FRMT_POSTGISRASTER)
-	add_definitions(-DFRMT_postgisraster)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
     add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 endif()

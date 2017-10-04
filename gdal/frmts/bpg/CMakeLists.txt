@@ -38,9 +38,7 @@ set(LIB_CSOURCES
         bpgdataset.cpp
 )
 
-option(GDAL_ENABLE_FRMT_BPG "Set ON to build bpg driver" OFF)
 if(GDAL_ENABLE_FRMT_BPG)
-	add_definitions(-DFRMT_bpg)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
     add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
 endif()

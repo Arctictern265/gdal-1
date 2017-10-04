@@ -26,7 +26,7 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.8)
 
 set(LIB_NAME "frmts_arg")
 project ("lib${LIB_NAME}")
@@ -34,6 +34,8 @@ project ("lib${LIB_NAME}")
 include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr)
 include_directories(${GDAL_ROOT_SOURCE_DIR}/gcore)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
+include_directories(${GDAL_ROOT_SOURCE_DIR}/raw)
 
 set(LIB_CSOURCES
         argdataset.cpp
@@ -42,7 +44,4 @@ set(LIB_CSOURCES
 if(GDAL_ENABLE_FRMT_ARG)
     set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 	add_library(${LIB_NAME} OBJECT ${LIB_CSOURCES})
-    include_directories(${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geojson)
-    include_directories(${GDAL_ROOT_SOURCE_DIR}/raw)
-    add_definitions(-DFRMT_arg)
 endif()
