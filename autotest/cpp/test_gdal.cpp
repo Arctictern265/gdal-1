@@ -33,6 +33,12 @@
 #include <limits>
 #include <string>
 
+#ifdef GDAL_TEST_ROOT_DIR
+#define DATA_DIR GDAL_TEST_ROOT_DIR "/gcore/data/"
+#else
+#define DATA_DIR "../gcore/data/"
+#endif
+
 namespace tut
 {
     // Common fixture with test data
@@ -277,7 +283,7 @@ namespace tut
         GetGDALDriverManager()->RegisterDriver( poDriver );
         const char* args[] = { "-of", "DatasetWithErrorInFlushCache", NULL };
         GDALTranslateOptions* psOptions = GDALTranslateOptionsNew((char**)args, NULL);
-        GDALDatasetH hSrcDS = GDALOpen("../gcore/data/byte.tif", GA_ReadOnly);
+        GDALDatasetH hSrcDS = GDALOpen(DATA_DIR "byte.tif", GA_ReadOnly);
         CPLErrorReset();
         CPLPushErrorHandler(CPLQuietErrorHandler);
         GDALDatasetH hOutDS = GDALTranslate("", hSrcDS, psOptions, NULL);
@@ -299,7 +305,7 @@ namespace tut
         GetGDALDriverManager()->RegisterDriver( poDriver );
         const char* args[] = { "-of", "DatasetWithErrorInFlushCache", NULL };
         GDALWarpAppOptions* psOptions = GDALWarpAppOptionsNew((char**)args, NULL);
-        GDALDatasetH hSrcDS = GDALOpen("../gcore/data/byte.tif", GA_ReadOnly);
+        GDALDatasetH hSrcDS = GDALOpen(DATA_DIR "byte.tif", GA_ReadOnly);
         CPLErrorReset();
         CPLPushErrorHandler(CPLQuietErrorHandler);
         GDALDatasetH hOutDS = GDALWarp("/", NULL, 1, &hSrcDS, psOptions, NULL);

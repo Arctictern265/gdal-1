@@ -53,8 +53,9 @@ include_directories(
 
 add_definitions(-DGDAL_COMPILATION)
 set(GDAL_ROOT_BINARY_DIR "${CMAKE_BINARY_DIR}/gdal")
-set(GDAL_TEST_ROOT_DIR ${CMAKE_SOURCE_DIR}/autotest)
-add_definitions(-DGDAL_TEST_ROOT_DIR="${GDAL_TEST_ROOT_DIR}")
+
+set(GDAL_TEST_ROOT_DIR "${CMAKE_SOURCE_DIR}/autotest")
+add_definitions(-DGDAL_TEST_ROOT_DIR="${GDAL_TEST_ROOT_DIR}" )
 
 message(STATUS "---------------------------")
 add_library(vsipreload ${CMAKE_SOURCE_DIR}/gdal/port/vsipreload.cpp)
