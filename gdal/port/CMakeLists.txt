@@ -62,7 +62,12 @@ else(MSVC)
     option(CPL_MULTIPROC_PTHREAD "Set to ON if you want to use pthreads based multiprocessing support." ON)
     mark_as_advanced(CPL_MULTIPROC_PTHREAD)
 
+    check_function_exists(pthread_mutex_init HAS_PTHREAD_MUTEXES)
+    gdal_add_definitions(HAS_PTHREAD_MUTEXES)
     check_symbol_exists(pthread_mutex_recursive pthread.h HAVE_PTHREAD_MUTEX_RECURSIVE)
+    gdal_add_definitions(HAVE_PTHREAD_MUTEX_RECURSIVE)
+    check_symbol_exists(pthread_mutex_adaptive_np pthread.h HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
+    gdal_add_definitions(HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
 
     check_include_files( assert.h HAVE_ASSERT_H)
     gdal_add_definitions(HAVE_ASSERT_H)
@@ -233,11 +238,11 @@ else(MSVC)
     if (HAVE_STDDEF_H AND HAVE_STDINT_H)
       set(STDC_HEADERS TRUE)
     endif (HAVE_STDDEF_H AND HAVE_STDINT_H)
-	
-    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
 
-	message(STATUS "cpl_config.h is configured")
+    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
+    message(STATUS "cpl_config.h is configured")
 endif(MSVC)
+
 
 include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 set(LIB_HHEADERS

@@ -1,13 +1,15 @@
 /* delived from port/cpl_config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define if you want to use pthreads based multiprocessing support */
-//#cmakedefine CPL_MULTIPROC_PTHREAD
+#cmakedefine CPL_MULTIPROC_PTHREAD
+
+#cmakedefine01 HAS_PTHREAD_MUTEXES
 
 /* Define to 1 if you have the `PTHREAD_MUTEX_RECURSIVE' constant. */
-//#cmakedefine01 HAVE_PTHREAD_MUTEX_RECURSIVE
+#cmakedefine01 HAVE_PTHREAD_MUTEX_RECURSIVE
 
 /* Define to 1 if you have the `PTHREAD_MUTEX_ADAPTIVE_NP' constant. */
-//#cmakedefine01 HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
+#cmakedefine01 HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
 
 /* Define to 1 if you have the `pthread_spinlock_t' type. */
 //#cmakedefine01 HAVE_PTHREAD_SPINLOCK
