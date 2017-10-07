@@ -35,6 +35,13 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(GDAL_ROOT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/gdal)
 set(GDAL_ROOT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+# for windows build, we need to set sdk path.
+if(WIN32)
+    set(GIS_SDK "C:\\release-1911-x64\\") # please edit here
+    set(CMAKE_INCLUDE_PATH  ${CMAKE_INCLUDE_PATH} "${GIS_SDK}include")
+    set(CMAKE_LIBRARY_PATH  ${CMAKE_LIBRARY_PATH}} "${GIS_SDK}lib")
+endif()
+
 add_subdirectory(gdal)
 add_subdirectory(autotest)
 #add_subdirectory(test)
