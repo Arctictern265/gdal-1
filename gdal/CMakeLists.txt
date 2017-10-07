@@ -71,22 +71,22 @@ add_definitions(-DGDAL_COMPILATION)
 set(CMAKE_CXX_STANDARD 11)
 
 # set path to additional CMake modules
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+#set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # uninstall target
 configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
 
 # For windows, do not allow the compiler to use default target (Vista).
 if(WIN32)
-  add_definitions(-D_WIN32_WINNT=0x0501 -D_USRDLL)
+    add_definitions(-D_WIN32_WINNT=0x0501 -D_USRDLL)
 endif()
 
 if(MSVC)
-  set(CMAKE_DEBUG_POSTFIX "d")
-  add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
-  #add_definitions(-D_MBCS)
-  set(GDAL_CSOURCES ${GDAL_CSOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)
-  source_group("Resource Files" FILES ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)  
+    set(CMAKE_DEBUG_POSTFIX "d")
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+    #add_definitions(-D_MBCS)
+    set(GDAL_CSOURCES ${GDAL_CSOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)
+    source_group("Resource Files" FILES ${CMAKE_CURRENT_SOURCE_DIR}/gcore/Version.rc)
 endif()
 
 add_definitions(-DSTRICT -DHAVE_SSE_AT_COMPILE_TIME)
@@ -95,13 +95,6 @@ if(UNIX)
     add_definitions(-DCPL_LSB)
     add_definitions(-D_FORTIFY_SOURCE)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
-
-if(MSVC)
-    if(CMAKE_CL_64)
-        set_target_properties(${GDAL_LIB_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
-        add_definitions(-D_WIN64)
-    endif(CMAKE_CL_64)
 endif()
 
 option(GDAL_USE_CPL "Set ON to use cpl" ON)
@@ -163,6 +156,13 @@ set_target_properties(${GDAL_LIB_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if(MSVC)
+    if(CMAKE_CL_64)
+		set_target_properties(${GDAL_LIB_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
+		add_definitions(-D_WIN64)
+    endif(CMAKE_CL_64)
+endif()
 
 if(WIN32)
     if(CMAKE_CL_64)
