@@ -30,44 +30,114 @@ cmake_minimum_required (VERSION 3.8)
 set(LIB_NAME "cpl")
 project ("lib${LIB_NAME}")
 
+include (CheckFunctionExists)
+include (CheckIncludeFile)
+include (CheckIncludeFiles)
+include (CheckLibraryExists)
+include (CheckSymbolExists)
+include (CheckCXXSymbolExists)
+include (CheckTypeSize)
+include (TestBigEndian)
+include (CheckCSourceCompiles)
+include (CheckCXXSourceCompiles)
 include (GdalUtils)
 
-#check Iconv
-option(GDAL_USE_ICONV "Set ON to use libiconv" ON)
-if(GDAL_USE_ICONV)
-    find_package(Iconv REQUIRED)
-    set(HAVE_ICONV ${ICONV_FOUND})
-    set(GDAL_HAVE_ICONV ${ICONV_FOUND} PARENT_SCOPE)
-    if(ICONV_SECOND_ARGUMENT_IS_CONST)
-      set(ICONV_CONST "const")
-    endif(ICONV_SECOND_ARGUMENT_IS_CONST)
-endif(GDAL_USE_ICONV)
-
 if(MSVC)
-    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.vc.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
+
+    include_directories(${GIS_SDK_DIR}/include)
+    link_directories(${GIS_SDK_DIR}/lib)
+
+    check_function_exists("atoll"   HAVE_ATOLL)
+    check_function_exists("strtof"  HAVE_DECL_STRTOF)
+    check_function_exists("fopen64" HAVE_FOPEN64)
+    check_function_exists("stat64"  HAVE_STAT64)
+
+    if(NOT CPL_DISABLE_STDCALL)
+        set(CPL_STDCALL __stdcall)
+    endif()
+
+    set(HAVE_DOPRNT 0)
+    set(HAVE_VPRINTF 1)
+    set(HAVE_VSNPRINTF 1)
+    set(HAVE_SNPRINTF 1)
+    if(_MSC_VER and _MSC_VER SMALLER 1500)
+        set(vsnprintf _vsnprintf)
+    endif()
+    set(snprintf _snprintf)
+
+    set(HAVE_GETCWD 1)
+    if(NOT defined(getcwd))
+        set(getcwd _getcwd)
+    endif()
+
+    if(NOT STDC_HEADERS)
+        set(STDC_HEADERS 1)
+    endif()
+
+    set(HAVE_ASSERT_H 1)
+    set(HAVE_FCNTL_H  1)
+    set(HAVE_UNISTD_H 0)
+    set(HAVE_STDINT_H 0)
+    set(HAVE_SYS_TYPES_H 1)
+    set(HAVE_LIBDL    0)
+    set(HAVE_LOCALE_H 1)
+    set(HAVE_FLOAT_H  1)
+    set(HAVE_ERRNO_H  1)
+    set(HAVE_SEARCH_H 1)
+    set(HAVE_DIRECT_H 1)
+
+    set(HAVE_LOCALTIME_R 0)
+    set(HAVE_DLFCN_H     0)
+    set(HAVE_DBMALLOC_H  0)
+    set(HAVE_LIBDBMALLOC 0)
+    set(WORDS_BIGENDIAN  0)
+    set(ICONV_CPP_CONST  0)
+    set(SIZEOF_INT  4)
+    set(SIZEOF_LONG 4)
+    set(SIZEOF_UNSIGNED_LONG 4)
+    if(_WIN64)
+        set(SIZEOF_VOIDP 8)
+    else()
+        set(SIZEOF_VOIDP 4)
+    endif()
+    set(HOST_FILLORDER FILLORDER_LSB2MSB)
+    set(HAVE_IEEEFP 1)
+
+    if(NOT __cplusplus)
+        if(NOT inline)
+            set(inline __inline)
+        endif()
+    endif()
+
+    set(lfind _lfind)
+
+    if(_MSC_VER and _MSC_VER SMALLER 1310)
+        set(VSI_STAT64 _stat)
+        set(VSI_STAT64_T _stat)
+        else()
+        set(VSI_STAT64 _stat64)
+        set(VSI_STAT64_T __stat64)
+    endif()
+
+    if(_MSC_VER and _MSC_VER EQUAL_SMALLER 1280)
+        #    typedef int intptr_t;
+    endif()
+
 else(MSVC)
 
-    # Include all the necessary files for macros
-    include (CheckFunctionExists)
-    include (CheckIncludeFile)
-    include (CheckIncludeFiles)
-    include (CheckLibraryExists)
-    include (CheckSymbolExists)
-    include (CheckCXXSymbolExists)
-    include (CheckTypeSize)  
-    include (TestBigEndian)
-    include (CheckCXXSourceCompiles)
-    #include (CompilerFlags)
+    find_package(Threads)
 
     option(CPL_MULTIPROC_PTHREAD "Set to ON if you want to use pthreads based multiprocessing support." ON)
     mark_as_advanced(CPL_MULTIPROC_PTHREAD)
 
-    check_function_exists(pthread_mutex_init HAS_PTHREAD_MUTEXES)
-    gdal_add_definitions(HAS_PTHREAD_MUTEXES)
-    check_symbol_exists(pthread_mutex_recursive pthread.h HAVE_PTHREAD_MUTEX_RECURSIVE)
-    gdal_add_definitions(HAVE_PTHREAD_MUTEX_RECURSIVE)
-    check_symbol_exists(pthread_mutex_adaptive_np pthread.h HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
-    gdal_add_definitions(HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
+    if(CPL_MULTIPROC_PTHREAD)
+        check_function_exists(pthread_mutex_init HAS_PTHREAD_MUTEXES)
+        gdal_add_definitions(HAS_PTHREAD_MUTEXES)
+        check_symbol_exists(pthread_mutex_recursive pthread.h HAVE_PTHREAD_MUTEX_RECURSIVE)
+        gdal_add_definitions(HAVE_PTHREAD_MUTEX_RECURSIVE)
+        check_symbol_exists(pthread_mutex_adaptive_np pthread.h HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
+        gdal_add_definitions(HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
+    endif()
 
     check_include_files( assert.h HAVE_ASSERT_H)
     gdal_add_definitions(HAVE_ASSERT_H)
@@ -126,11 +196,13 @@ else(MSVC)
     gdal_add_definitions(HAVE_FLOAT_H)
 
     check_function_exists("getcwd" HAVE_GETCWD)
+    check_function_exists("lstat" HAVE_LSTAT)
+    check_function_exists("posix_memalign" HAVE_POSIX_MEMALIGN)
 
     check_library_exists(c "" "" HAVE_LIBC)
     check_type_size("int16" HAVE_INT16)
     check_type_size("int32" HAVE_INT32)
-    check_type_size("int8" HAVE_INT8)
+    check_type_size("int8"  HAVE_INT8)
 	
     check_include_files(ieeefp.h HAVE_IEEEFP_H)
     set(HAVE_IEEEFP TRUE)
@@ -139,7 +211,6 @@ else(MSVC)
     gdal_add_definitions(HAVE_INTTYPES_H)
 
     check_include_files(jpeglib.h HAVE_JPEGLIB_H)
-#    check_library_exists(pq "" "" HAVE_LIBPQ)
     check_include_files( png.h HAVE_PNG_H)
 	
     check_type_size ("int"           SIZEOF_INT         )
@@ -228,9 +299,15 @@ else(MSVC)
     check_function_exists("readlink" HAVE_READLINK)
 
     CHECK_C_SOURCE_COMPILES("#define _GNU_SOURCE\n#include <sys/mman.h>\n
-    void main(void) {return (mremap(0,0,0,0,0));}"  HAVE_5ARGS_MREMAP)
+            void main(void) {return (mremap(0,0,0,0,0));}"  HAVE_5ARGS_MREMAP)
 
- 
+    CHECK_C_SOURCE_COMPILES("int main(int argc, char** argv) {
+            int i; __sync_add_and_fetch(&i, 1); __sync_sub_and_fetch(&i, 1);
+            __sync_bool_compare_and_swap(&i, 0, 1);
+            return 0; } " HAVE_GCC_ATOMIC_BUILTINS)
+
+    OPTION(USE_GCC_VISIBILITY_FLAG "Define to 1 if you want to use the -fvisibility GCC flag" OFF)
+
     if(MACOSX_BUNDLE)
         set(CPL_CONFIG_EXTRAS "#include \"cpl_config_extras.h\"" INTERNAL)
     endif(MACOSX_BUNDLE)
@@ -239,8 +316,6 @@ else(MSVC)
       set(STDC_HEADERS TRUE)
     endif (HAVE_STDDEF_H AND HAVE_STDINT_H)
 
-    configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
-    message(STATUS "cpl_config.h is configured")
 endif(MSVC)
 
 
@@ -391,11 +466,24 @@ if(GDAL_USE_CURL)
 endif(GDAL_USE_CURL)
 
 #check Iconv
-option(GDAL_USE_ICONV "Set ON to use libiconv" ON)
+option(GDAL_USE_ICONV "Set ON to use libiconv" OFF)
 if(GDAL_USE_ICONV)
+    find_package(Iconv REQUIRED)
+    set(HAVE_ICONV ${ICONV_FOUND})
+    set(GDAL_HAVE_ICONV ${ICONV_FOUND} PARENT_SCOPE)
+    if(ICONV_SECOND_ARGUMENT_IS_CONST)
+      set(ICONV_CONST "const")
+    endif(ICONV_SECOND_ARGUMENT_IS_CONST)
     include_directories(${ICONV_INCLUDE_DIR})
-	add_definitions(-DHAVE_ICONV -DLIBICONV_PLUG)
-endif(GDAL_USE_ICONV)
+    add_definitions(-DHAVE_ICONV -DLIBICONV_PLUG)
+else() # check libc built-in iconv
+    check_include_files( iconv.h HAVE_ICONV_H)
+    set(HAVE_ICONV ${HAVE_ICONV_H})
+    if(HAVE_ICONV)
+        gdal_add_definitions(HAVE_ICONV)
+        add_definitions(-DHAVE_ICONV)
+    endif()
+endif()
 
 #check odbc
 option(GDAL_USE_ODBC "Set ON to use odbc" OFF)
@@ -419,10 +507,14 @@ endif(GDAL_USE_XMLREFORMAT)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
 
+# Thread configuration
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} pthread)
 
+# Generate cpl_config.h
+configure_file(${CMAKE_MODULE_PATH}/cpl_config.h.cmake ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h @ONLY)
+message(STATUS "cpl_config.h is configured")
 
 if(ZLIB_FOUND)
 	set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${ZLIB_LIBRARIES})

@@ -58,7 +58,9 @@
 #cmakedefine01 HAVE_GETCWD
 
 /* Define if you have the iconv() function and it works. */
+#ifndef HAVE_ICONV
 #cmakedefine01 HAVE_ICONV
+#endif
 
 /* Define as 0 or 1 according to the floating point format suported by the
    machine */
@@ -155,7 +157,7 @@
 #cmakedefine01 HAVE_POSIX_SPAWNP
 
 /* Define to 1 if you have the `posix_memalign' function. */
-//#cmakedefine01 HAVE_POSIX_MEMALIGN
+#cmakedefine01 HAVE_POSIX_MEMALIGN
 
 /* Define to 1 if you have the `vfork' function. */
 #cmakedefine01 HAVE_VFORK
@@ -170,7 +172,7 @@
 #cmakedefine01 HAVE_STATVFS64
 
 /* Define to 1 if you have the `lstat' function. */
-//#cmakedefine01 HAVE_LSTAT
+#cmakedefine01 HAVE_LSTAT
 
 /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
 #define HOST_FILLORDER @HOST_FILLORDER@
@@ -210,10 +212,10 @@
 #cmakedefine01 UNIX_STDIO_64
 
 /* Define to 1 if you want to use the -fvisibility GCC flag */
-//#undef USE_GCC_VISIBILITY_FLAG
+#cmakedefine01 USE_GCC_VISIBILITY_FLAG
 
 /* Define to 1 if GCC atomic builtins are available */
-//#undef HAVE_GCC_ATOMIC_BUILTINS
+#cmakedefine01 HAVE_GCC_ATOMIC_BUILTINS
 
 /* Define to 1 if GCC bswap builtins are available */
 #cmakedefine01 HAVE_GCC_BSWAP
