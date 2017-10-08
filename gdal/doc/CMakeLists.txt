@@ -32,45 +32,17 @@ set(PROJECT_NAME "gdal_docs")
 # Documentation rules
 find_package(Doxygen)
 IF(DOXYGEN_FOUND)
-    # doxygen custom configurations
-    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}")
-    set(GDAL_DOXYGEN_PROJECT_NAME "GDAL")
-    set(GDAL_DOXYGEN_LANGUAGE "English")
-    set(GDAL_DOXYGEN_JAVADOC_AUTOBRIEF "YES")
-    set(GDAL_DOXYGEN_EXTRACT_LOCAL_CLASSES "NO")
-    set(GDAL_DOXYGEN_INPUT
-            "port \
-                         gcore \
-                         frmts/gdalallregister.cpp \
-                         alg \
-                         frmts/vrt \
-                         doc \
-                         apps \
-                         ogr \
-                         ogr/ogrsf_frmts \
-                         ogr/ogrsf_frmts/generic \
-                         ogr/ogrsf_frmts/geojson/ogrgeojsonwriter.cpp \
-                         ogr/ogrsf_frmts/kml/ogr2kmlgeometry.cpp \
-                         swig/python/scripts \
-                         gnm"
-            )
-    set(GDAL_DOXYGEN_EXAMPLE_PATH
-            "apps \
-             frmts \
-             frmts/jdem"
-            )
-    set(GDAL_DOXYGEN_IMAGE_PATH ${GDAL_ROOT_SOURCE_DIR}/doc/grid)
-    set(GDAL_DOXYGEN_LAYOUT_FILE ${GDAL_ROOT_SOURCE_DIR}/DoxygenLayout.xml)
-    configure_file(${CMAKE_SOURCE_DIR}/cmake/Doxyfile.in ${GDAL_ROOT_BINARY_DIR}/Doxyfile)
-
     # Generate translated docs. Should go first, because index.html page should
-    # be overwritten with the main one later
-    #    add_custom_command(
-    #        OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/classes.html
-    #        COMMAND ${DOXYGEN_EXECUTABLE} -w html html/header.html html/footer.html html/stylesheet.css
-    #        MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile
-    #        WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
-    #	)
+    # be overwritten with the main one later FIXME: work on out-of-source generation.
+    add_custom_command(
+        OUTPUT
+            ${GDAL_ROOT_SOURCE_DIR}/html/header.html
+            ${GDAL_ROOT_SOURCE_DIR}/html/footer.html
+            ${GDAL_ROOT_SOURCE_DIR}/html/stylesheet.css
+        COMMAND ${DOXYGEN_EXECUTABLE} -w html html/header.html html/footer.html html/stylesheet.css
+        MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
+    )
 
     # prepare language headers
     add_custom_command(
@@ -140,6 +112,62 @@ IF(DOXYGEN_FOUND)
             WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}/doc/ru
     )
 
+    # doxygen br configurations
+    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}")
+    set(GDAL_DOXYGEN_PROJECT_NAME "BR")
+    set(GDAL_DOXYGEN_LANGUAGE "Brazilian")
+    set(GDAL_DOXYGEN_JAVADOC_AUTOBRIEF "NO")
+    set(GDAL_DOXYGEN_EXTRACT_LOCAL_CLASSES "YES")
+    set(GDAL_DOXYGEN_INPUT "gdal_building_br.dox gdal_datamodel_br.dox gdal_tutorial_br.dox index_br.dox")
+    set(GDAL_DOXYGEN_EXAMPLE_PATH "")
+    set(GDAL_DOXYGEN_IMAGE_PATH "")
+    set(GDAL_DOXYGEN_LAYOUT_FILE "")
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/Doxyfile.in ${GDAL_ROOT_BINARY_DIR}/Doxyfile_br)
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/index_br.html
+            COMMAND ${DOXYGEN_EXECUTABLE} ${GDAL_ROOT_BINARY_DIR}/Doxyfile_br
+            MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile_br
+            WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}/doc/br
+    )
+
+    # run main doxygen
+    # doxygen configurations
+    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}")
+    set(GDAL_DOXYGEN_PROJECT_NAME "GDAL")
+    set(GDAL_DOXYGEN_LANGUAGE "English")
+    set(GDAL_DOXYGEN_JAVADOC_AUTOBRIEF "YES")
+    set(GDAL_DOXYGEN_EXTRACT_LOCAL_CLASSES "NO")
+    set(GDAL_DOXYGEN_INPUT
+            "port \
+                         gcore \
+                         frmts/gdalallregister.cpp \
+                         alg \
+                         frmts/vrt \
+                         doc \
+                         apps \
+                         ogr \
+                         ogr/ogrsf_frmts \
+                         ogr/ogrsf_frmts/generic \
+                         ogr/ogrsf_frmts/geojson/ogrgeojsonwriter.cpp \
+                         ogr/ogrsf_frmts/kml/ogr2kmlgeometry.cpp \
+                         swig/python/scripts \
+                         gnm"
+            )
+    set(GDAL_DOXYGEN_EXAMPLE_PATH
+            "apps \
+             frmts \
+             frmts/jdem"
+            )
+    set(GDAL_DOXYGEN_IMAGE_PATH ${GDAL_ROOT_SOURCE_DIR}/doc/grid)
+    set(GDAL_DOXYGEN_LAYOUT_FILE ${GDAL_ROOT_SOURCE_DIR}/DoxygenLayout.xml)
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/Doxyfile.in ${GDAL_ROOT_BINARY_DIR}/Doxyfile)
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/index.html
+            COMMAND ${DOXYGEN_EXECUTABLE} ${GDAL_ROOT_BINARY_DIR}/Doxyfile
+            MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile
+            WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
+    )
+
     # copy rest of files
     file(GLOB OTHER_DOCS
             ${GDAL_ROOT_SOURCE_DIR}/doc/images/act-logo.png
@@ -177,6 +205,8 @@ IF(DOXYGEN_FOUND)
             DEPENDS
             #            ${GDAL_ROOT_BINARY_DIR}/html/classes.html
             ${GDAL_ROOT_BINARY_DIR}/html/index.html
+            ${GDAL_ROOT_BINARY_DIR}/html/index_ru.html
+            ${GDAL_ROOT_BINARY_DIR}/html/index_br.html
             ${GDAL_ROOT_BINARY_DIR}/html/header.html
             ${GDAL_ROOT_BINARY_DIR}/html/footer.html
             ${GDAL_ROOT_BINARY_DIR}/html/stylesheet.css
