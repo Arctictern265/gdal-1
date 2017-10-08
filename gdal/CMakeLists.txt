@@ -191,16 +191,46 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 # Documentation rules
 find_package(Doxygen)
 IF(DOXYGEN_FOUND)
-    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}/html")
+    # doxygen custom configurations
+    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}")
+    set(GDAL_DOXYGEN_PROJECT_NAME "GDAL")
+    set(GDAL_DOXYGEN_LANGUAGE "English")
+    set(GDAL_DOXYGEN_JAVADOC_AUTOBRIEF "YES")
+    set(GDAL_DOXYGEN_EXTRACT_LOCAL_CLASSES "NO")
+    set(GDAL_DOXYGEN_INPUT
+                         "port \
+                         gcore \
+                         frmts/gdalallregister.cpp \
+                         alg \
+                         frmts/vrt \
+                         doc \
+                         apps \
+                         ogr \
+                         ogr/ogrsf_frmts \
+                         ogr/ogrsf_frmts/generic \
+                         ogr/ogrsf_frmts/geojson/ogrgeojsonwriter.cpp \
+                         ogr/ogrsf_frmts/kml/ogr2kmlgeometry.cpp \
+                         swig/python/scripts \
+                         gnm"
+                 )
+    set(GDAL_DOXYGEN_EXAMPLE_PATH
+            "apps \
+             frmts \
+             frmts/jdem"
+            )
+    set(GDAL_DOXYGEN_IMAGE_PATH ${GDAL_ROOT_SOURCE_DIR}/doc/grid)
+    set(GDAL_DOXYGEN_LAYOUT_FILE ${GDAL_ROOT_SOURCE_DIR}/DoxygenLayout.xml)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/Doxyfile.in ${GDAL_ROOT_BINARY_DIR}/Doxyfile)
+
     # Generate translated docs. Should go first, because index.html page should
     # be overwritten with the main one later
-    add_custom_command(
-        OUTPUT ${GDAL_ROOT_BINARY_DIR}/doc/html/header.html
-        COMMAND ${DOXYGEN_EXECUTABLE} -w html html/header.html html/footer.html html/stylesheet.css ${GDAL_ROOT_BINARY_DIR}/Doxyfile
-        MAIN_DEPENDENCY ${GDAL_ROOT_SOURCE_DIR}/Doxyfile /${GDAL_ROOT_SOURCE_DIR}/html/header.html
-        WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
-	)
+#    add_custom_command(
+#        OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/classes.html
+#        COMMAND ${DOXYGEN_EXECUTABLE} -w html html/header.html html/footer.html html/stylesheet.css
+#        MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile
+#        WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
+#	)
+
     # prepare language headers
     add_custom_command(
         OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/header_ru.html
@@ -215,47 +245,104 @@ IF(DOXYGEN_FOUND)
             ${GDAL_ROOT_SOURCE_DIR}/html/header.html
         WORKING_DIRECTORY ${GDAL_ROOT_BINARY_DIR}/html
     )
-   # file(GENERATE
-   #     OUTPUT %{GDAL_ROOT_BINARY_DIR}/html/header_br.html
-   #     INPUT ${GDAL_ROOT_BINARY_DIR}/doc/html/header.html
-   # )
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/header_br.html
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${GDAL_ROOT_SOURCE_DIR}/html/header.html
+                    ${GDAL_ROOT_BINARY_DIR}/html/header_br.html
+            DEPENDS ${GDAL_ROOT_SOURCE_DIR}/html/header.html
+    )
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/header.html
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${GDAL_ROOT_SOURCE_DIR}/html/header.html
+                    ${GDAL_ROOT_BINARY_DIR}/html/header.html
+            DEPENDS ${GDAL_ROOT_SOURCE_DIR}/html/header.html
+    )
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/footer.html
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${GDAL_ROOT_SOURCE_DIR}/html/footer.html
+                    ${GDAL_ROOT_BINARY_DIR}/html/footer.html
+            DEPENDS ${GDAL_ROOT_SOURCE_DIR}/html/footer.html
+    )
+    add_custom_command(
+            OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/stylesheet.css
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${GDAL_ROOT_SOURCE_DIR}/html/stylesheet.css
+                    ${GDAL_ROOT_BINARY_DIR}/html/stylesheet.css
+            DEPENDS ${GDAL_ROOT_SOURCE_DIR}/html/stylesheet.css
+    )
     # run main doxygen
 	add_custom_command(
-        OUTPUT ${GDAL_ROOT_BINARY_DIR}/doc/html/index.html
+        OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/index.html
         COMMAND ${DOXYGEN_EXECUTABLE} ${GDAL_ROOT_BINARY_DIR}/Doxyfile
         MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}
     )
-        set(DOC_IMAGES
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/act-logo.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/cadcorp_logo.jpg
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2013.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2014.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2017.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/i3-logo.jpg
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/ingres-logo.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/OSGeo_project.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/safe-logo.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/src-logo.png
-                ${GDAL_ROOT_SOURCE_DIR}/doc/images/waypoint_logo.png
-                )
-    file(COPY
+
+    # doxygen ru configurations
+    set(GDAL_DOXYGEN_OUTPUT_DIRECTORY "${GDAL_ROOT_BINARY_DIR}")
+    set(GDAL_DOXYGEN_PROJECT_NAME "RU")
+    set(GDAL_DOXYGEN_LANGUAGE "Russian")
+    set(GDAL_DOXYGEN_JAVADOC_AUTOBRIEF "NO")
+    set(GDAL_DOXYGEN_EXTRACT_LOCAL_CLASSES "YES")
+    set(GDAL_DOXYGEN_INPUT "gdal_building_ru.dox gdal_datamodel_ru.dox gdal_tutorial_ru.dox index_ru.dox")
+    set(GDAL_DOXYGEN_EXAMPLE_PATH "")
+    set(GDAL_DOXYGEN_IMAGE_PATH "")
+    set(GDAL_DOXYGEN_LAYOUT_FILE "")
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/Doxyfile.in ${GDAL_ROOT_BINARY_DIR}/Doxyfile_ru)
+    add_custom_command(
+        OUTPUT ${GDAL_ROOT_BINARY_DIR}/html/index_ru.html
+        COMMAND ${DOXYGEN_EXECUTABLE} ${GDAL_ROOT_BINARY_DIR}/Doxyfile_ru
+        MAIN_DEPENDENCY ${GDAL_ROOT_BINARY_DIR}/Doxyfile_ru
+        WORKING_DIRECTORY ${GDAL_ROOT_SOURCE_DIR}/doc/ru
+	)
+
+    # copy rest of files
+    file(GLOB OTHER_DOCS
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/act-logo.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/cadcorp_logo.jpg
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2013.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2014.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/foss4g2017.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/i3-logo.jpg
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/ingres-logo.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/OSGeo_project.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/safe-logo.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/src-logo.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/images/waypoint_logo.png
+            ${GDAL_ROOT_SOURCE_DIR}/doc/grid/*.png
+            ${GDAL_ROOT_SOURCE_DIR}/frmts/*.html
+            ${GDAL_ROOT_SOURCE_DIR}/frmts/*/frmt_*.html
+            ${GDAL_ROOT_SOURCE_DIR}/frmts/openjpeg/*.xml
+            ${GDAL_ROOT_SOURCE_DIR}/frmts/wms/frmt_*.xml
+            ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/frmt_*.html
+            ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/dev_*.html
+            #    ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geopackage_aspatial.html
+            ${GDAL_ROOT_SOURCE_DIR}/ogr/*.gif
             ${GDAL_ROOT_SOURCE_DIR}/data/gdalicon.png
-            ${DOC_IMAGES}
-            #${GDAL_ROOT_SOURCE_DIR}/doc/grid/*.png
-            #${GDAL_ROOT_SOURCE_DIR}/frmts/*.html
-            #${GDAL_ROOT_SOURCE_DIR}/frmts/*/frmt_*.html
-            #${GDAL_ROOT_SOURCE_DIR}/frmts/openjpeg/*.xml
-            #${GDAL_ROOT_SOURCE_DIR}/frmts/wms/frmt_*.xml
-            #${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/frmt_*.html
-            #${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/dev_*.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/ogr_formats.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/ogr_formats.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogr_feature_style.html
-            #${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geopackage_aspatial.html
-            #${GDAL_ROOT_SOURCE_DIR}/ogr/*.gif
-            DESTINATION
-            ${GDAL_ROOT_BINARY_DIR}/html
-        )
-
+            )
+    add_custom_target(copy_other_docs)
+    set(DocsTargetDir ${GDAL_ROOT_BINARY_DIR}/html)
+    foreach(f ${OTHER_DOCS})
+      add_custom_command(TARGET copy_other_docs PRE_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy ${f} ${DocsTargetDir})
+    endforeach()
+    add_custom_target(docs
+            DEPENDS
+#            ${GDAL_ROOT_BINARY_DIR}/html/classes.html
+            ${GDAL_ROOT_BINARY_DIR}/html/index.html
+            ${GDAL_ROOT_BINARY_DIR}/html/header.html
+            ${GDAL_ROOT_BINARY_DIR}/html/footer.html
+            ${GDAL_ROOT_BINARY_DIR}/html/stylesheet.css
+            ${GDAL_ROOT_BINARY_DIR}/html/header_br.html
+            ${GDAL_ROOT_BINARY_DIR}/html/header_ru.html
+            ${GDAL_ROOT_BINARY_DIR}/html/index_ru.html
+            copy_other_docs
+            )
 ENDIF()
