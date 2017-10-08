@@ -26,7 +26,7 @@
 
 cmake_minimum_required (VERSION 2.8.10)
 
-set(LIB_NAME "geotiff")
+set(LIB_NAME "frmts_gtiff_geotiff")
 project ("lib${LIB_NAME}")
 
 if(GDAL_USE_LIBTIFF_INTERNAL)
