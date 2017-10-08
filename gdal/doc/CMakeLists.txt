@@ -160,21 +160,20 @@ IF(DOXYGEN_FOUND)
             ${GDAL_ROOT_SOURCE_DIR}/frmts/wms/frmt_*.xml
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/frmt_*.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/*/dev_*.html
-            #    ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/geopackage_aspatial.html
+            ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/gpkg/geopackage_aspatial.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/*.gif
             ${GDAL_ROOT_SOURCE_DIR}/data/gdalicon.png
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/ogr_formats.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts/ogr_formats.html
             ${GDAL_ROOT_SOURCE_DIR}/ogr/ogr_feature_style.html
-            )
-    add_custom_target(copy_other_docs)
-    set(DocsTargetDir ${GDAL_ROOT_BINARY_DIR}/html)
+    )
+    add_custom_target(_copy_other_docs) ## FIXME: better way not to use custom target.
     foreach(f ${OTHER_DOCS})
-        add_custom_command(TARGET copy_other_docs PRE_BUILD
+        add_custom_command(TARGET _copy_other_docs PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E
-                copy ${f} ${DocsTargetDir})
+                    copy ${f} ${GDAL_ROOT_BINARY_DIR}/html)
     endforeach()
-    add_custom_target(docs
+    add_custom_target(gdal_docs
             DEPENDS
             #            ${GDAL_ROOT_BINARY_DIR}/html/classes.html
             ${GDAL_ROOT_BINARY_DIR}/html/index.html
@@ -183,7 +182,6 @@ IF(DOXYGEN_FOUND)
             ${GDAL_ROOT_BINARY_DIR}/html/stylesheet.css
             ${GDAL_ROOT_BINARY_DIR}/html/header_br.html
             ${GDAL_ROOT_BINARY_DIR}/html/header_ru.html
-            ${GDAL_ROOT_BINARY_DIR}/html/index_ru.html
-            copy_other_docs
-            )
+            _copy_other_docs
+    )
 ENDIF()
