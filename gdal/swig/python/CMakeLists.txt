@@ -27,12 +27,42 @@
 
 cmake_minimum_required (VERSION 3.8)
 
+find_package(PythonInterp REQUIRED)
+find_package(PythonLibs REQUIRED)
 include(MacroSwigBindings)
+
+INCLUDE_DIRECTORIES( ${PYTHON_INCLUDE_PATH} ${GDAL_INCLUDE_DIR})
+
 MACRO_SWIG_BINDINGS(python)
 
-#INCLUDE_DIRECTORIES( ${PYTHON_INCLUDE_PATH} ${GDAL_INCLUDE_DIR} )
-#SET_TARGET_PROPERTIES( gdal_python PROPERTIES PREFIX "" OUTPUT_NAME "gdal")
-#TARGET_LINK_LIBRARIES( gdal_python ${GDAL_LIBRARY} )
-#TARGET_LINK_LIBRARIES( gdal_python ${PYTHON_LIBRARY} )
+set(SWIG_PYTHON_SOURCES
+        README.txt
+        gdal.py  gdalconst.py  gdalnumeric.py  gnm.py  ogr.py  osr.py  setup.py
+        osgeo/__init__.py  osgeo/gdal_array.py osgeo/gdalnumeric.py  osgeo/ogr.py
+        osgeo/gdal.py      osgeo/gdalconst.py  osgeo/gnm.py          osgeo/osr.py
+)
+file(MAKE_DIRECTORY ${GDAL_ROOT_BINARY_DIR}/swig/python/osgeo/)
+foreach(f ${SWIG_PYTHON_SOURCES})
+    add_custom_command(
+        OUTPUT ${GDAL_ROOT_BINARY_DIR}/swig/python/${f}
+        COMMAND ${CMAKE_COMMAND} -E copy ${GDAL_ROOT_SOURCE_DIR}/swig/python/${f} ${GDAL_ROOT_BINARY_DIR}/swig/python/${f}
+        DEPENDS ${GDAL_ROOT_SOURCE_DIR}/swig/python/${f}
+    )
+    list(APPEND SWIG_PYTHON_SOURCES_LIST ${GDAL_ROOT_BINARY_DIR}/swig/python/${f})
+endforeach()
+set_source_files_properties(${SWIG_PYTHON_SOURCES_LIST} PROPERTIES GENERATED 1)
+
+set(GDAL_SWIG_PYTHON_INCLUDE_DIR
+        "${GDAL_ROOT_BINARY_DIR}/port:${GDAL_ROOT_SOURCE_DIR}/apps:${GDAL_ROOT_SOURCE_DIR}/port:${GDAL_ROOT_SOURCE_DIR}/gcore:${GDAL_ROOT_SOURCE_DIR}/alg:${GDAL_ROOT_SOURCE_DIR}/ogr:${GDAL_ROOT_SOURCE_DIR}/ogr/ogrsf_frmts:${GDAL_ROOT_SOURCE_DIR}/gnm")
+set(GDAL_SWIG_PYTHON_LIBRARY_DIR "${GDAL_ROOT_BINARY_DIR}")
+CONFIGURE_FILE(${CMAKE_MODULE_PATH}/setup.cfg.in ${GDAL_ROOT_BINARY_DIR}/swig/python/setup.cfg)
+
+add_custom_target(gdal_python ALL ${PYTHON_EXECUTABLE} setup.py build
+        DEPENDS gdal_python_wrappers ${SWIG_PYTHON_SOURCES_LIST}
+        WORKING_DIRECTORY ${GDAL_ROOT_BINARY_DIR}/swig/python
+        COMMENT "generating python binding"
+        SOURCES ${SWIG_PYTHON_SOURCES_LIST}
+)
+
 #INSTALL(TARGETS gdal_python LIBRARY DESTINATION ${PYTHON_VENDOR_ARCH_DIR})
 
