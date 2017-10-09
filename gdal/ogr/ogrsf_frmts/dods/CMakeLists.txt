@@ -48,7 +48,7 @@ set(LIB_CSOURCES
 )
 
 include(MacroOptionalAddDriver)
-MACRO_ADD_OGR_DEFAULT_DRIVER(DODS dods ON)
+MACRO_ADD_OGR_DEFAULT_DRIVER(DODS dods OFF)
 if(OGR_ENABLE_DODS)
     find_package(DAP REQUIRED)
     find_package(LibXml2 REQUIRED)
