@@ -234,11 +234,8 @@ else(MSVC)
     check_type_size ("intptr_t"      SIZEOF_INTPTR_T     )
 
     include(FindInt128)
-    FIND_INT128_TYPES()
-    if(UINT128_FOUND)
-        if(UINT128_DEF STRING_EQUAL "HAVE__uint128_t")
-            gdal_add_definitions(HAVE_UINT128_T)
-        endif()
+    if(INT128_FOUND)
+        gdal_add_definitions(HAVE_UINT128_T)
     endif()
 
 #    test_big_endian(WORDS_BIGENDIAN)

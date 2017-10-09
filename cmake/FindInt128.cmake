@@ -1,72 +1,63 @@
-# - this module looks for 128 bit integer support.
-# Simply add ${INT128_FLAGS} to the
-# compiler flags.
+# ============================================================================
+#  MCKL/cmake/FindInt128.cmake
+# ----------------------------------------------------------------------------
+#  MCKL: Monte Carlo Kernel Library
+# ----------------------------------------------------------------------------
+#  Copyright (c) 2013-2017, Yan Zhou
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#    Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+#
+#    Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+# ============================================================================
 
-include(CheckTypeSize)
+# Find 128-bits integer type
+#
+# The following variable is set
+#
+# INT128_FOUND - TRUE if 128-bits integer type is found and works correctly
+# INT128_TYPE  - The type of the 128-bits integer
 
-MACRO(CHECK_INT128 INT128_NAME VARIABLE DEFINE_NAME)
+if(DEFINED INT128_FOUND)
+    return()
+endif(DEFINED INT128_FOUND)
 
-    if(NOT INT128_FOUND)
-        message("Testing for 128 bit integer support with ${INT128_NAME}.")
-        check_type_size("${INT128_NAME}" "int128_t_${DEFINE_NAME}")
-        if("HAVE_int128_t_${DEFINE_NAME}")
-            if("int128_t_${DEFINE_NAME}" EQUAL 16)
-                message("Found: Enabling support for 128 bit integers using ${INT128_NAME}.")
-                SET(INT128_FOUND 1)
-                SET(${VARIABLE} "${DEFINE_NAME}")
-            else()
-                message("${INT128_NAME} has incorrect size, can't use.")
-            endif()
-        endif()
-    endif()
-endmacro()
+set(SAFE_CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS})
 
-MACRO(CHECK_UINT128 UINT128_NAME VARIABLE DEFINE_NAME)
+set(INT128_TEST_SOURCE "#include <cassert>\nint main(){\n
+    unsigned long long a = 0x0123456789ABCDEF;unsigned long long b = 0xFEDCBA9876543210;
+    unsigned INT128 c = static_cast<unsigned INT128>(a) * static_cast<unsigned INT128>(b);
+    assert(static_cast<unsigned long long>(c >> 0x00) == 0x2236D88FE5618CF0);
+    assert(static_cast<unsigned long long>(c >> 0x40) == 0x0121FA00AD77D742);return 0;}"
+)
+set(INT128_TRY_TYPE "__int128")
+set(CMAKE_REQUIRED_DEFINITIONS ${SAFE_CMAKE_REQUIRED_DEFINITIONS}
+    -DINT128=${INT128_TRY_TYPE})
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("${INT128_TEST_SOURCE}" INT128_TEST)
+if(INT128_TEST)
+    set(INT128_TYPE ${INT128_TRY_TYPE} CACHE STRING "128-bit type")
+    set(INT128_FOUND TRUE CACHE BOOL "Found 128-bits integer type")
+else(INT128_TEST)
+    set(INT128_FOUND FALSE CACHE BOOL "NOT Found 128-bit integer type")
+endif(INT128_TEST)
 
-    if(NOT UINT128_FOUND)
-        message("Testing for 128 bit unsigned integer support with ${UINT128_NAME}.")
-        check_type_size("${UINT128_NAME}" "uint128_t_${DEFINE_NAME}")
-        if("HAVE_uint128_t_${DEFINE_NAME}")
-            if("uint128_t_${DEFINE_NAME}" EQUAL 16)
-                message("Found: Enabling support for 128 bit integers using ${UINT128_NAME}.")
-                SET(UINT128_FOUND 1)
-                SET(${VARIABLE} "${DEFINE_NAME}")
-            else()
-                message("${UINT128_NAME} has incorrect size, can't use.")
-            endif()
-        endif()
-    endif()
-endmacro()
-
-MACRO(FIND_INT128_TYPES)
-
-    Check_Int128("long long"  INT128_DEF "HAVEint128_as_long_long")
-    Check_Int128("int128_t"   INT128_DEF "HAVEint128_t")
-    Check_Int128("__int128_t" INT128_DEF "HAVE__int128_t")
-    Check_Int128("__int128"   INT128_DEF "HAVE__int128")
-    Check_Int128("int128"     INT128_DEF "HAVEint128")
-
-    if(INT128_FOUND)
-        set(INT128_FLAGS "-D${INT128_DEF}")
-    else()
-        message("Compiler/platform support for 128 bit integers not found.")
-        set(INT128_FLAGS "")
-    endif()
-
-    Check_UInt128("unsigned long long"  UINT128_DEF "HAVEuint128_as_u_long_long")
-    Check_UInt128("uint128_t"           UINT128_DEF "HAVEuint128_t")
-    Check_UInt128("__uint128_t"         UINT128_DEF "HAVE__uint128_t")
-    Check_UInt128("__uint128"           UINT128_DEF "HAVE__uint128")
-    Check_UInt128("uint128"             UINT128_DEF "HAVEuint128")
-    Check_UInt128("unsigned __int128_t" UINT128_DEF "HAVEunsigned__int128_t")
-    Check_UInt128("unsigned int128_t"   UINT128_DEF "HAVEunsignedint128_t")
-    Check_UInt128("unsigned __int128"   UINT128_DEF "HAVEunsigned__int128")
-    Check_UInt128("unsigned int128"     UINT128_DEF "HAVEunsignedint128")
-
-    if(UINT128_FOUND)
-        set(INT128_FLAGS "${INT128_FLAGS} -D${UINT128_DEF}")
-    else()
-        message("Compiler/platform support for unsigned 128 bit integers not found.")
-    endif()
-
-endmacro()
+set(CMAKE_REQUIRED_DEFINITIONS ${SAFE_CMAKE_REQUIRED_DEFINITIONS})
