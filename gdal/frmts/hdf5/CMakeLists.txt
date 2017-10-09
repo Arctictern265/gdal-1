@@ -48,8 +48,10 @@ set(LIB_CSOURCES
         bagdataset.cpp
 )
 
-find_package(HDF5 REQUIRED)
-include_directories(${HDF5_INCLUDE_DIR})
-add_definitions(-DFRMT_hdf5)
-set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+if(GDAL_ENABLE_FRMT_HDF5)
+    find_package(HDF5 REQUIRED)
+    include_directories(${HDF5_INCLUDE_DIR})
+    add_definitions(-DFRMT_hdf5)
+    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+endif()

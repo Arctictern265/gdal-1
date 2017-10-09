@@ -108,14 +108,13 @@ gdal_add_format(wmts)
 gdal_add_format(grib)
 gdal_add_format(openjpeg)
 gdal_add_format(jpeg2000)
-gdal_add_format(netcdf)
-gdal_add_format(hdf5)
 gdal_add_format(ogdi)
 gdal_add_format(jpeg)
 gdal_add_format(gta)
 gdal_add_format(pcraster)
 gdal_add_format(fits)
 gdal_add_format(gif)
+gdal_add_format(raw)
 
 ###########################################
 ## optional formats
@@ -126,7 +125,8 @@ gdal_add_format_option(arg "ARG")
 gdal_add_format_option(usgsdem "USGSDEM")
 gdal_add_format_option(bmp "BMP")
 gdal_add_format_option(airsar "AirSAR")
-gdal_add_format_option(raw "RAW")
+gdal_add_format_option(netcdf "NetCDF")
+gdal_add_format_option(hdf5 "HDF5")
 
 ## FIXME: temporary disables incomplete hdf4 driver cmake recipe
 #add_subdirectory(hdf4)

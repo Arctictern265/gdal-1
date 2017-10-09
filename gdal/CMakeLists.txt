@@ -53,9 +53,7 @@ string (REGEX MATCH "([0-9]+)"
 set(GDAL_VERSION ${GDAL_MAJOR_VERSION}.${GDAL_MINOR_VERSION}.${GDAL_REV_VERSION})
 message(STATUS "gdal version=[${GDAL_VERSION}]")
 
-set(GDAL_LIB_NAME gdal${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION})
-message(STATUS "GDAL lib name ... " ${GDAL_LIB_NAME})
-
+set(GDAL_LIB_NAME gdal)
 set(GDAL_LIB_NAME ${GDAL_LIB_NAME} PARENT_SCOPE)
 
 #diagnosing info
@@ -179,14 +177,15 @@ if(WIN32)
 			ARCHIVE DESTINATION lib/x86
 			LIBRARY DESTINATION lib/x86)
     endif()
-else(WIN32)
+else()
     install(TARGETS ${GDAL_LIB_NAME}
         RUNTIME DESTINATION bin
-        ARCHIVE DESTINATION lib/gdal
-        LIBRARY DESTINATION lib/gdal)
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib)
 endif()
-install(FILES ${GDAL_ROOT_BINARY_DIR}/gcore/gdal_def.h DESTINATION include/gdal)
-install(FILES ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h DESTINATION include/gdal)
+# It is better to install into include/gdal but keep it for consistency
+install(FILES ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h DESTINATION include)
+install(FILES ${GDAL_ROOT_BINARY_DIR}/port/cpl_config.h DESTINATION include)
 
 option(GDAL_GENERATE_DOCS "Generate html document" OFF)
 if(GDAL_GENERATE_DOCS)
