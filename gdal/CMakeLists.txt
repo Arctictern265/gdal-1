@@ -118,10 +118,13 @@ if(GDAL_ENABLE_OGR)
     add_subdirectory(ogr)
 endif()
 add_subdirectory(frmts)
-add_subdirectory(apps)
+# FIXME: configurable enable/disable
+set(GDAL_ENABLE_GNM 1)
 add_subdirectory(gnm)
 
 add_subdirectory(swig)
+
+add_subdirectory(apps)
 
 message(STATUS "---------------------------")
 list(REMOVE_DUPLICATES GDAL_TARGET_OBJECTS)

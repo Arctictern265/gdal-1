@@ -58,7 +58,7 @@ set(GDAL_SWIG_PYTHON_LIBRARY_DIR "${GDAL_ROOT_BINARY_DIR}")
 CONFIGURE_FILE(${CMAKE_MODULE_PATH}/setup.cfg.in ${GDAL_ROOT_BINARY_DIR}/swig/python/setup.cfg)
 
 add_custom_target(gdal_python ALL ${PYTHON_EXECUTABLE} setup.py build
-        DEPENDS gdal_python_wrappers ${SWIG_PYTHON_SOURCES_LIST}
+        DEPENDS gdal_python_wrappers ${SWIG_PYTHON_SOURCES_LIST} gdal_config
         WORKING_DIRECTORY ${GDAL_ROOT_BINARY_DIR}/swig/python
         COMMENT "generating python binding"
         SOURCES ${SWIG_PYTHON_SOURCES_LIST}

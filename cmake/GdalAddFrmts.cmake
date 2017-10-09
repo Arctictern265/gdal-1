@@ -24,9 +24,10 @@
 # * DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-macro(gdal_add_format format)
-    add_definitions(-DFRMT_${format})
-    add_subdirectory(${format})
+macro(gdal_add_format _format)
+    add_definitions(-DFRMT_${_format})
+    add_subdirectory(${_format})
+    list(APPEND GDAL_FORMATS ${_format})
 endmacro()
 
 macro(gdal_add_format_option _format _name)
@@ -34,6 +35,7 @@ macro(gdal_add_format_option _format _name)
     option(GDAL_ENABLE_FRMT_${_key} "Set ON to build ${_name} driver" OFF)
     if(GDAL_ENABLE_FRMT_${_key})
         add_definitions(-DFRMT_${_format})
+        list(APPEND GDAL_FORMATS ${_format})
     endif()
     add_subdirectory(${_format})
 endmacro()

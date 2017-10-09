@@ -187,3 +187,49 @@ if(GDAL_ENABLE_OGR)
 
 	apps_macro("test_ogrsf" "${TEST_OGRSF_CSOURCES}" "${TEST_OGRSF_HHEADERS}")
 endif()
+
+# generate gdal-config
+macro(_GEN_GDAL_CONFIG)
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+    set(GDAL_PREFIX "/usr/local") # default
+else()
+    set(GDAL_PREFIX ${CMAKE_INSTALL_PREFIX})
+endif()
+set(GDAL_ROOT "${GDAL_PREFIX}/lib")
+#
+set(CONFIG_PREFIX ${GDAL_PREFIX})
+set(CONFIG_CFLAGS "-I${GDAL_PREFIX}/include")
+set(CONFIG_DATA "${GDAL_PREFIX}/share/gdal/${GDAL_MAJOR_VERSION}.${GDAL_MINOR_VERSION}")
+set(CONFIG_VERSION ${GDAL_VERSION})
+# always yes
+set(CONFIG_OGR_ENABLED "yes")
+# generate dep-libs and cflags
+set(_DEP_LIBS "")
+set(_LINKFLAGS "")
+foreach(_lib ${GDAL_TARGET_LINK_LIB})
+    get_filename_component(_lib_name ${_lib} NAME_WE)
+    string(REGEX REPLACE "^lib" "" _name ${_lib_name})
+    list(APPEND _DEP_LIBS "-l${_name} ")
+    get_filename_component(_lib_dir ${_lib} PATH)
+    list(APPEND _LINKFLAGS "-L${_lib_dir} ")
+endforeach()
+list(REMOVE_DUPLICATES _DEP_LIBS )
+list(REMOVE_DUPLICATES _LINKFLAGS )
+string(REPLACE ";" " " CONFIG_DEP_LIBS "${_DEP_LIBS}")
+string(REPLACE ";" " " CONFIG_LIBS "${LINKFLAGS}")
+#
+if(GDAL_ENABLE_GNM)
+    set(CONFIG_GNM_ENABLED "yes")
+else()
+    set(CONFIG_GNM_ENABLED "no")
+endif()
+#
+string(REPLACE ";" " " CONFIG_FORMATS "${GDAL_FORMATS}")
+#
+configure_file(${CMAKE_MODULE_PATH}/gdal-config.in ${GDAL_ROOT_BINARY_DIR}/apps/gdal-config)
+file(COPY ${GDAL_ROOT_BINARY_DIR}/apps/gdal-config
+  DESTINATION ${GDAL_ROOT_BINARY_DIR}
+  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+endmacro()
+add_custom_target(gdal_config ALL _GEN_GDAL_CONFIG())

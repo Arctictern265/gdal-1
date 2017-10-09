@@ -6,5 +6,5 @@ max-line-length=100
 [build_ext]
 include_dirs = ${GDAL_SWIG_PYTHON_INCLUDE_DIR}
 library_dirs = ${GDAL_SWIG_PYTHON_LIBRARY_DIR}
-#libraries = gdal
-gdal_config=../../apps/gdal-config
+libraries = ${GDAL_LIB_NAME}
+gdal_config=${GDAL_ROOT_BINARY_DIR}/gdal-config
