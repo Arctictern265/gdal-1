@@ -47,8 +47,10 @@
 #include "ogr_api.h"
 #include "ogr_core.h"
 
-#if (defined(__x86_64) || defined(_M_X64))
+#if (defined(__x86_64) || defined(_M_X64) || defined(__MINGW64__))
 #include <emmintrin.h>
+#include <gdal/gcore/gdal.h>
+
 #endif
 
 CPL_CVSID("$Id$")

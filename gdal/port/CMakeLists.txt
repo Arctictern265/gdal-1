@@ -313,8 +313,17 @@ else(MSVC)
       set(STDC_HEADERS TRUE)
     endif (HAVE_STDDEF_H AND HAVE_STDINT_H)
 
-endif(MSVC)
+    message(STATUS "checking if sprintf can be overloaded for GDAL compilation")
+    CHECK_CXX_SOURCE_COMPILES("#define _XOPEN_SOURCE\n#include <vector>\n#include <stdio.h>\nextern \"C\"\n {int sprintf(char *str, const char* fmt, ...);}" DEPRECATE_SPRINTF)
+    if(NOT DEPRECATE_SPRINTF)
+        set(DONT_DEPRECATE_SPRINTF 1)
+        gdal_add_definitions(DONT_DEPRECATE_SRPINTF)
+    endif()
 
+    if (WIN32)  #Mingw
+        set(USE__LOCALE_T TRUE)
+    endif()
+endif(MSVC)
 
 include_directories(${GDAL_ROOT_BINARY_DIR}/port)
 set(LIB_HHEADERS

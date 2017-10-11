@@ -42,9 +42,11 @@ set(LIB_CSOURCES
         gtadataset.cpp
 )
 
-find_package(GTA REQUIRED)
+find_package(GTA)
+if(GTA_FOUND)
 add_definitions(-DFRMT_gta)
 include_directories(${GTA_INCLUDE_DIR})
 set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${GTA_LIBRARIES} PARENT_SCOPE)
 set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
 add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
+    endif()

@@ -55,7 +55,7 @@ if(GDAL_USE_LIBTIFF_INTERNAL)
         add_definitions(-DRENAME_INTERNAL_LIBTIFF_SYMBOLS)
     endif()
     include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff)
-	add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff ${GDAL_ROOT_BINARY_DIR}/frmts/gtiff/libtiff)
+	#add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff)
 endif(GDAL_USE_LIBTIFF_INTERNAL)
 
 add_definitions(-DFRMT_ingr)

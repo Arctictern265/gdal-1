@@ -260,6 +260,19 @@
 /* Define to 1 if you have the `std::isnan' function. */
 #cmakedefine01 HAVE_STD_IS_NAN
 
+#cmakedefine01 USE__LOCALE_T
+#if USE__LOCALE_T
+#include <xlocinfo.h>
+#define locale_t _locale_t
+#define freelocale _freelocale
+#define uselocale setlocale
+#define newlocale nNewLocale
+#define LC_NMERIC_MASK LC_NUMERIC
+#define readlink readf
+#endif
+
+#cmakedefine DONT_DEPRECATE_SPRINTF
+
 /* Use this file to override settings in instances where you're doing FAT compiles
    on Apple.  It is currently off by default because it doesn't seem to work with
    XCode >= 3/28/11 */

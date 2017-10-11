@@ -43,7 +43,7 @@ set(LIB_CSOURCES
         jpeg2000dataset.cpp
 )
 
-find_package(Jasper REQUIRED)
+find_package(Jasper)
 if(JASPER_FOUND)
     # Detect GeoJP2 UUID hack
     include(CheckCSourceCompiles)

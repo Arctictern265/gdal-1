@@ -47,21 +47,15 @@ set(LIB_CSOURCES
 
 
 include(MacroOptionalAddDriver)
-MACRO_OPTIONAL_ADD_DRIVER(MYSQL MySQL ON)
+MACRO_OPTIONAL_ADD_DRIVER(MYSQL MySQL OFF)
 if(OGR_ENABLE_MYSQL)
-    find_package(MySQL REQUIRED)
+    find_package(MySQL)
     if(MYSQL_FOUND)
         include_directories(${MYSQL_INCLUDE_DIR})
         add_definitions(-DHAVE_MYSQL)
         set(GDAL_HAVE_MYSQL ON CACHE INTERNAL "GDAL_HAVE_MYSQL")
-    else()
-        MESSAGE(FATAL_ERROR "Could not find MySQL")
-    endif()
-
-    set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
-    add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
-
-    if(MYSQL_FOUND)
+        set(GDAL_TARGET_OBJECTS ${GDAL_TARGET_OBJECTS} $<TARGET_OBJECTS:${LIB_NAME}> PARENT_SCOPE)
+        add_library(${LIB_NAME} OBJECT ${LIB_HHEADERS} ${LIB_CSOURCES})
         set(GDAL_TARGET_LINK_LIB ${GDAL_TARGET_LINK_LIB} ${MYSQL_LIBRARY} PARENT_SCOPE)
     endif()
 endif()

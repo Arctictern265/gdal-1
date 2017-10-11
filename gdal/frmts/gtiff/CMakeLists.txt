@@ -42,7 +42,7 @@ CMAKE_DEPENDENT_OPTION(GDAL_ENABLE_FRMT_WMS "Set ON to build wms driver" OFF "GD
 
 if(GDAL_USE_LIBTIFF_INTERNAL)
 	include_directories(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff)
-	add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff ${GDAL_ROOT_BINARY_DIR}/frmts/gtiff/libtiff)
+	add_subdirectory(${GDAL_ROOT_SOURCE_DIR}/frmts/gtiff/libtiff)
 else(GDAL_USE_LIBTIFF_INTERNAL)
 	find_package(TIFF 4.0 REQUIRED)
 	if(TIFF_FOUND)
