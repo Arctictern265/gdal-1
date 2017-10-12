@@ -60,13 +60,13 @@ if(MSVC)
     set(HAVE_VPRINTF 1)
     set(HAVE_VSNPRINTF 1)
     set(HAVE_SNPRINTF 1)
-    if(_MSC_VER and _MSC_VER SMALLER 1500)
+    if(MSVC_VERSION LESS 1500)
         set(vsnprintf _vsnprintf)
     endif()
     set(snprintf _snprintf)
 
     set(HAVE_GETCWD 1)
-    if(NOT defined(getcwd))
+    if(NOT DEFINED(getcwd))
         set(getcwd _getcwd)
     endif()
 
@@ -111,7 +111,7 @@ if(MSVC)
 
     set(lfind _lfind)
 
-    if(_MSC_VER and _MSC_VER SMALLER 1310)
+    if(MSVC_VERSION LESS 1310)
         set(VSI_STAT64 _stat)
         set(VSI_STAT64_T _stat)
         else()
@@ -119,7 +119,7 @@ if(MSVC)
         set(VSI_STAT64_T __stat64)
     endif()
 
-    if(_MSC_VER and _MSC_VER EQUAL_SMALLER 1280)
+    if(MSVC_VERSION LESS 1280)
         #    typedef int intptr_t;
     endif()
 
